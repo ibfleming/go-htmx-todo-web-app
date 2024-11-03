@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"zion/internal/storage"
-	"zion/templates"
-	"log"
 	"net/http"
+	"zion/internal/storage"
+	"zion/internal/utils"
+	"zion/templates"
 )
 
 type PostRegisterHandler struct {
@@ -27,10 +27,11 @@ func (h *PostRegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 	err := h.users.CreateUser(email, password)
 
-	// Error 2
+	// Check for errors
 	if err != nil {
+		errMsg := utils.SQLErrorMessage(utils.ExtractSQLStateErrorCode(err.Error()))
 		w.WriteHeader(http.StatusBadRequest)
-		templates.RegisterError(err.Error()).Render(r.Context(), w)
+		templates.RegisterError(errMsg).Render(r.Context(), w)
 		return
 	}
 
@@ -41,6 +42,4 @@ func (h *PostRegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		http.Error(w, "❌ Error rendering template", http.StatusInternalServerError)
 	}
-
-	log.Printf("📝 User registered succssfully!\n\tEmail: %s\n\tPassword: %s", email, password)
 }
