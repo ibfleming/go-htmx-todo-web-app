@@ -4,25 +4,28 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"zion/internal/config"
-	"zion/internal/storage"
-	"zion/internal/storage/db"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+	"zion/internal/config"
+	"zion/internal/hash"
+	"zion/internal/storage"
+	"zion/internal/storage/db"
 
 	"gorm.io/gorm"
 )
 
 type Server struct {
-	port     string
-	DB       *gorm.DB
-	Users    *storage.UserStorage
-	Sessions *storage.SessionStorage
-	http     *http.Server
+	port          string
+	db            *gorm.DB
+	users         *storage.UserStorage
+	sessions      *storage.SessionStorage
+	http          *http.Server
+	hash          *hash.PasswordHash
+	sessionCookie string
 }
 
 func CreateServer(cfg *config.Config) *Server {
@@ -45,9 +48,11 @@ func CreateServer(cfg *config.Config) *Server {
 			WriteTimeout:   30 * time.Second,
 			MaxHeaderBytes: 1 << 20,
 		},
-		DB:       dbConn,
-		Users:    storage.NewUserStorage(storage.UserStorageParameters{DB: dbConn, PasswordHash: ""}),
-		Sessions: storage.NewSessionStorage(storage.SessionStorageParameters{DB: dbConn}),
+		db:            dbConn,
+		users:         storage.NewUserStorage(storage.UserStorageParameters{DB: dbConn, PasswordHash: ""}),
+		sessions:      storage.NewSessionStorage(storage.SessionStorageParameters{DB: dbConn}),
+		hash:          hash.NewPasswordHash(),
+		sessionCookie: cfg.SessionCookieName,
 	}
 
 	// Set the server handler

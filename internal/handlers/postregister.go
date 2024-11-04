@@ -25,20 +25,27 @@ func (h *PostRegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
+	// Create user
 	err := h.users.CreateUser(email, password)
 
-	// Check for errors
+	// Error handling
 	if err != nil {
-		errMsg := utils.SQLErrorMessage(utils.ExtractSQLStateErrorCode(err.Error()))
+		// Error header
 		w.WriteHeader(http.StatusBadRequest)
-		templates.RegisterError(errMsg).Render(r.Context(), w)
+
+		// Extract SQL state error code
+		errMsg := utils.SQLErrorMessage(utils.ExtractSQLStateErrorCode(err.Error()))
+
+		// Render register error template
+		err = templates.RegisterError(errMsg).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, "❌ Error rendering template", http.StatusInternalServerError)
+		}
 		return
 	}
 
 	// Render register success template
-	c := templates.RegisterSuccess()
-	err = c.Render(r.Context(), w)
-
+	err = templates.RegisterSuccess().Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "❌ Error rendering template", http.StatusInternalServerError)
 	}

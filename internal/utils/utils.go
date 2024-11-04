@@ -16,8 +16,8 @@ func ExtractSQLStateErrorCode(errMsg string) string {
 func SQLErrorMessage(statusCode string) string {
 	switch statusCode {
 	case "23505":
-		return "❌ email already in use"
+		return "email already in use"
 	default:
-		return "❌ bad request"
+		return "bad request"
 	}
 }
