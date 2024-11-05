@@ -2,7 +2,7 @@ package db
 
 import (
 	"log"
-	"os"
+	zerr "zion/internal/errors"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -38,38 +38,34 @@ func Connect(url string) (*gorm.DB, error) {
 	return db, err
 }
 
-func CreateModels(db *gorm.DB) {
-	mode := os.Getenv("DATABASE_MODE")
-	// Migrate tables to the store depending on mode
+func CreateModels(db *gorm.DB, mode string) error {
 	switch mode {
 	case "clear":
 		{
 			log.Println("🔨 Clearing the store...")
 			err := db.Migrator().DropTable(models...)
 			if err != nil {
-				log.Fatalf("❌ Failed to drop the tables in the store: %v", err)
+				return zerr.ErrDropTables
 			}
-			migrate(db)
+			return migrate(db)
 		}
 	case "seed":
 		{
 			log.Println("🔨 Seeding the store...")
-			migrate(db)
+			return migrate(db)
 		}
 	default:
 		{
-			migrate(db)
+			return migrate(db)
 		}
 	}
 }
 
-func migrate(db *gorm.DB) {
-	log.Println("📦 Migrating models:")
+func migrate(db *gorm.DB) error {
+	log.Println("Migrating models into database...")
+	log.Println("Models:")
 	for _, model := range models {
 		log.Printf("\tModel: %T", model)
 	}
-	err := db.AutoMigrate(models...)
-	if err != nil {
-		log.Fatalf("❌ Failed to migrate models: %v", err)
-	}
+	return db.AutoMigrate(models...)
 }

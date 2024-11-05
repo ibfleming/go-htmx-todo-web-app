@@ -12,6 +12,7 @@ type Config struct {
 	Port              string `default:"4000"`
 	DatabaseURL       string `default:"empty"`
 	SessionCookieName string `default:"session"`
+	DatabaseMode      string `default:"none"`
 }
 
 func LoadConfig() *Config {
@@ -25,5 +26,6 @@ func LoadConfig() *Config {
 		Port:              os.Getenv("HTTP_PORT"),
 		DatabaseURL:       os.Getenv("DATABASE_URL"),
 		SessionCookieName: os.Getenv("SESSION_COOKIE"),
+		DatabaseMode:      os.Getenv("DATABASE_MODE"),
 	}
 }

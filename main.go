@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"zion/internal/config"
 	"zion/internal/server"
 )
@@ -9,7 +10,10 @@ func main() {
 	// Load configuration
 	cfg := config.LoadConfig()
 	// Create a new server
-	srv := server.CreateServer(cfg)
+	s, err := server.InitializeZionServer(cfg)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	// Start the server
-	srv.Start()
+	s.Start()
 }

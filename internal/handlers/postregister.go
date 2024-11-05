@@ -8,11 +8,11 @@ import (
 )
 
 type PostRegisterHandler struct {
-	users storage.UserStorage
+	users storage.UserStorageInterface
 }
 
 type PostRegisterHandlerParameters struct {
-	Users storage.UserStorage
+	Users storage.UserStorageInterface
 }
 
 func NewPostRegisterHandler(params PostRegisterHandlerParameters) *PostRegisterHandler {

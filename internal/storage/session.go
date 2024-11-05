@@ -1,6 +1,7 @@
 package storage
 
 import (
+	zerr "zion/internal/errors"
 	"zion/internal/storage/db"
 
 	"github.com/google/uuid"
@@ -11,11 +12,11 @@ type SessionStorage struct {
 	db *gorm.DB
 }
 
-type SessionStorageParameters struct {
+type SessionStorageParams struct {
 	DB *gorm.DB
 }
 
-func NewSessionStorage(params SessionStorageParameters) *SessionStorage {
+func NewSessionStorage(params SessionStorageParams) *SessionStorage {
 	return &SessionStorage{
 		db: params.DB,
 	}
@@ -39,7 +40,11 @@ func (s *SessionStorage) GetUserFromSession(sessionID, userID string) (*db.User,
 		return nil, err
 	}
 	if session.User.ID == 0 {
-		return nil, gorm.ErrRecordNotFound
+		return nil, zerr.ErrUserNotFound
 	}
 	return &session.User, nil
+}
+
+func (s *SessionStorage) DeleteSession(sessionID string) error {
+	return s.db.Where("session_id = ?", sessionID).Delete(&db.Session{}).Error
 }

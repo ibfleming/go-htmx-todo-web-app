@@ -8,74 +8,114 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 	"zion/internal/config"
+	zerr "zion/internal/errors"
 	"zion/internal/hash"
 	"zion/internal/storage"
 	"zion/internal/storage/db"
 
+	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
 )
 
-type Server struct {
-	port          string
+type ZionServer struct {
+	config        *config.Config
 	db            *gorm.DB
-	users         *storage.UserStorage
-	sessions      *storage.SessionStorage
-	http          *http.Server
+	users         storage.UserStorageInterface
+	sessions      storage.SessionStorageInterface
+	httpServer    *http.Server
 	hash          *hash.PasswordHash
 	sessionCookie string
+	router        chi.Router
+	wg            sync.WaitGroup
 }
 
-func CreateServer(cfg *config.Config) *Server {
-	// Connect to the database
+func NewZionServer(
+	cfg *config.Config,
+	dbConn *gorm.DB,
+	userStorage storage.UserStorageInterface,
+	sessionStorage storage.SessionStorageInterface,
+	hash *hash.PasswordHash,
+) *ZionServer {
+	s := &ZionServer{
+		config:        cfg,
+		db:            dbConn,
+		users:         userStorage,
+		sessions:      sessionStorage,
+		hash:          hash,
+		sessionCookie: cfg.SessionCookieName,
+		httpServer: &http.Server{
+			Addr:        fmt.Sprintf(":%s", cfg.Port),
+			IdleTimeout: time.Minute,
+			// ReadTimeout:    10 * time.Second,
+			// WriteTimeout:   30 * time.Second,
+			// MaxHeaderBytes: 1 << 20,
+		},
+	}
+	s.SetupRouter()
+	s.httpServer.Handler = s.router
+	return s
+}
+
+func InitializeZionServer(cfg *config.Config) (*ZionServer, error) {
+	// (1) Connect to the database
 	dbConn, err := db.Connect(cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("❌ Failed to connect to the database: %v", err)
+		return nil, zerr.ErrFailedToConnectToDB
 	}
 
-	// Create the database models
-	db.CreateModels(dbConn)
-
-	// Initialize the server
-	server := &Server{
-		port: cfg.Port,
-		http: &http.Server{
-			Addr:           fmt.Sprintf(":%s", cfg.Port),
-			IdleTimeout:    time.Minute,
-			ReadTimeout:    10 * time.Second,
-			WriteTimeout:   30 * time.Second,
-			MaxHeaderBytes: 1 << 20,
-		},
-		db:            dbConn,
-		users:         storage.NewUserStorage(storage.UserStorageParameters{DB: dbConn, PasswordHash: ""}),
-		sessions:      storage.NewSessionStorage(storage.SessionStorageParameters{DB: dbConn}),
-		hash:          hash.NewPasswordHash(),
-		sessionCookie: cfg.SessionCookieName,
+	// (2) Create the database models (or migrate)
+	err = db.CreateModels(dbConn, cfg.DatabaseMode)
+	if err != nil {
+		return nil, zerr.ErrCreateTables
 	}
 
-	// Set the server handler
-	server.http.Handler = CreateRouter(server)
+	// (3) Create password hash
+	passwordHash := hash.NewPasswordHash()
 
-	return server
+	// (4) Create storage layers
+	userStorage := storage.NewUserStorage(storage.UserStorageParams{
+		DB:           dbConn,
+		PasswordHash: passwordHash,
+	})
+	sessionStorage := storage.NewSessionStorage(storage.SessionStorageParams{
+		DB: dbConn,
+	})
+
+	// (5) Create Zion Server
+	server := NewZionServer(
+		cfg,
+		dbConn,
+		userStorage,
+		sessionStorage,
+		passwordHash,
+	)
+
+	return server, nil
 }
 
-func (s *Server) Start() {
+func (s *ZionServer) Start() {
 	// Initialize kill signals
 	killSig := make(chan os.Signal, 1)
 	signal.Notify(killSig, os.Interrupt, syscall.SIGTERM)
 
-	// Start HTTP server
+	// Increment the WaitGroup counter for the HTTP server goroutine
+	s.wg.Add(1)
 	go func() {
-		err := s.http.ListenAndServe()
+		defer s.wg.Done() // Decrement the WaitGroup counter when the server stops
+		err := s.httpServer.ListenAndServe()
 		if errors.Is(err, http.ErrServerClosed) {
 			log.Printf("❎ Server is shutting down...")
 		} else if err != nil {
 			log.Fatalf("❌ Server error: %v.", err)
 		}
 	}()
-	log.Printf("🚀 Starting server on %s", s.http.Addr)
+	log.Printf("Starting server on %s", s.httpServer.Addr)
+
+	// Block until a kill signal is received
 	<-killSig
 
 	// Create a shutdown timeout
@@ -83,8 +123,26 @@ func (s *Server) Start() {
 	defer cancel()
 
 	// Attempt to gracefully shut down the server
-	if err := s.http.Shutdown(ctx); err != nil {
-		log.Fatalf("❌ Server shutdown failed: %v", err)
+	if err := s.httpServer.Shutdown(ctx); err != nil {
+		log.Printf("❌ Server shutdown failed: %v", err)
+	} else {
+		log.Print("✅ Server gracefully shutdown.")
 	}
-	log.Print("❎ Server shutdown complete.")
+
+	// Wait for all background goroutines to finish
+	s.wg.Wait()
+	log.Print("❎ All background operations complete. Server shutdown complete.")
+}
+
+func (s *ZionServer) SetupRouter() {
+	// Using chi router (maybe just use standard library in the future?)
+	s.router = chi.NewRouter()
+
+	// Initialize file server
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("./static")))
+	s.router.Handle("/static/*", fs)
+	s.router.Handle("/favicon.ico", fs)
+
+	// Define routes
+	s.EstablishRoutes()
 }

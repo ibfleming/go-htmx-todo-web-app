@@ -118,7 +118,7 @@ func RegisterSuccess() templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col items-center justify-center gap-2\"><div class=\"form-success\">✔️ account created successfully</div><p class=\"text-xs text-neutral-800\">click <a href=\"/login\" class=\"underline\">here</a> to login</p></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col items-center justify-center gap-2\"><div class=\"form-success\">account created successfully</div><p class=\"text-xs text-neutral-800\">click <a href=\"/login\" class=\"underline\">here</a> to login</p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

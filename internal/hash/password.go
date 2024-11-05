@@ -4,9 +4,10 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"strings"
+
+	zerr "zion/internal/errors"
 
 	"golang.org/x/crypto/argon2"
 )
@@ -37,10 +38,7 @@ func NewPasswordHash() *PasswordHash {
 	}
 }
 
-var (
-	ErrInvalidHash         = errors.New("❌ Encoded hash is in the incorrect format")
-	ErrIncompatibleVersion = errors.New("❌ Incompatible version of Argon2")
-)
+var ()
 
 func (h *PasswordHash) GenerateFromPassword(password string) (encodedHash string, err error) {
 	salt, err := generateRandomBytes(h.saltLength)
@@ -93,7 +91,7 @@ func (h *PasswordHash) ComparePasswordAndHash(password, encodedHash string) (mat
 func (h *PasswordHash) decodeHash(encodedHash string) (p *PasswordParams, salt, hash []byte, err error) {
 	vals := strings.Split(encodedHash, "$")
 	if len(vals) != 6 {
-		return nil, nil, nil, ErrInvalidHash
+		return nil, nil, nil, zerr.ErrInvalidHash
 	}
 
 	var version int
@@ -102,7 +100,7 @@ func (h *PasswordHash) decodeHash(encodedHash string) (p *PasswordParams, salt, 
 		return nil, nil, nil, err
 	}
 	if version != argon2.Version {
-		return nil, nil, nil, ErrIncompatibleVersion
+		return nil, nil, nil, zerr.ErrIncompatibleVersion
 	}
 
 	p = &PasswordParams{}

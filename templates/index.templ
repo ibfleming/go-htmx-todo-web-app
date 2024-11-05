@@ -1,0 +1,12 @@
+package templates
+
+import "zion/internal/storage/db"
+
+templ Index(user *db.User) {
+	@Base("Zion") {
+		<div class="flex flex-col items-center justify-center">
+			<h1>Welcome to Zion!</h1>
+			<h2>Welcome back, { user.Email }!</h2>
+		</div>
+	}
+}

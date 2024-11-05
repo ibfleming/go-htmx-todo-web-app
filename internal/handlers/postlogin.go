@@ -12,16 +12,16 @@ import (
 )
 
 type PostLoginHandler struct {
-	users         storage.UserStorage
-	sessions      storage.SessionStorage
-	passwordHash  hash.PasswordHash
+	users         storage.UserStorageInterface
+	sessions      storage.SessionStorageInterface
+	passwordHash  *hash.PasswordHash
 	sessionCookie string
 }
 
 type PostLoginHandlerParameters struct {
-	Users         storage.UserStorage
-	Sessions      storage.SessionStorage
-	PasswordHash  hash.PasswordHash
+	Users         storage.UserStorageInterface
+	Sessions      storage.SessionStorageInterface
+	PasswordHash  *hash.PasswordHash
 	SessionCookie string
 }
 
@@ -89,7 +89,6 @@ func (h *PostLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Name:     h.sessionCookie,
 		Value:    cookieValue,
 		Expires:  expiration,
-		Path:     "/",
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 	}
