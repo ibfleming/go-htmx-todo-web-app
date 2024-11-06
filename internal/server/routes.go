@@ -45,5 +45,10 @@ func (s *ZionServer) EstablishRoutes() {
 		r.Post("/register", handlers.NewPostRegisterHandler(handlers.PostRegisterHandlerParameters{
 			Users: s.users,
 		}).ServeHTTP)
+
+		// Logout Handler
+		r.Post("/logout", handlers.NewPostLogoutHandler(handlers.PostLogoutHandlerParams{
+			SessionCookie: s.sessionCookie,
+		}).ServeHTTP)
 	})
 }

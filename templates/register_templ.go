@@ -41,7 +41,7 @@ func Register() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div hx-ext=\"response-targets\" class=\"flex flex-col items-center justify-center h-screen font-mono\"><div id=\"register-container\" class=\"flex flex-col gap-2 items-center justify-center\"><h1 class=\" text-neutral-800 text-sm font-semibold\">register</h1><form hx-post=\"/register\" hx-trigger=\"submit\" hx-target=\"#register-container\" hx-target-error=\"#register-error\" hx-swap=\"outerHTML\" class=\"flex flex-col gap-2 items-center w-[256px] min-w-[256px] max-w-[256px] p-2 rounded-sm bg-neutral-800 shadow-md\"><div class=\"flex flex-col gap-2 items-start w-full\"><input type=\"email\" name=\"email\" placeholder=\"name@company.com\" autocomplete=\"on\" class=\"form-input border-none px-2 p-0.5 w-full text-xs rounded-sm\" required> <input type=\"password\" name=\"password\" placeholder=\"••••••••\" autocomplete=\"on\" class=\"form-input border-none px-2 py-0.5 w-full text-xs rounded-sm\" required> <button type=\"submit\" class=\"button-13 px-2 py-0.5 text-white rounded-sm\">submit</button></div><p class=\"text-xs text-white\">have an account? <a href=\"/login\" class=\"underline\">login</a></p></form><div id=\"register-error\"></div></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div hx-ext=\"response-targets\" class=\"flex flex-col items-center justify-center h-screen font-mono\"><div id=\"register-container\" class=\"flex flex-col gap-2 items-center justify-center\"><h1 class=\" text-neutral-800 text-sm font-semibold\">register</h1><form hx-post=\"/register\" hx-trigger=\"submit\" hx-target=\"#register-container\" hx-target-error=\"#register-error\" hx-swap=\"outerHTML\" class=\"flex flex-col gap-2 items-center w-[256px] min-w-[256px] max-w-[256px] p-2 rounded-sm bg-neutral-800 shadow-md\"><div class=\"flex flex-col gap-2 items-start w-full\"><input type=\"email\" name=\"email\" placeholder=\"name@company.com\" autocomplete=\"on\" class=\"form-input border-none px-2 p-0.5 w-full text-xs rounded-sm\" required> <input type=\"password\" name=\"password\" placeholder=\"••••••••\" autocomplete=\"on\" class=\"form-input border-none px-2 py-0.5 w-full text-xs rounded-sm\" required> <button type=\"submit\" class=\"button-13 px-2 py-0.5 text-white rounded-sm\">submit</button></div><p class=\"text-xs text-white\">have an account? <a href=\"/login\" rel=\"noreferrer\" aria-label=\"Login\" class=\"underline\">login</a></p></form><div id=\"register-error\"></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -83,7 +83,7 @@ func RegisterError(errMsg string) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(errMsg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/register.templ`, Line: 44, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/register.templ`, Line: 46, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {

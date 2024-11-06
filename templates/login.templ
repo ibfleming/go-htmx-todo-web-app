@@ -30,9 +30,11 @@ templ Login() {
 							class="form-input border-none px-2 py-0.5 w-full text-xs rounded-sm"
 							required
 						/>
-						<button type="submit" class="button-13 px-2 py-0.5 text-white rounded-sm">submit</button>
+						<button type="submit" aria-label="Submit" class="button-13 px-2 py-0.5 text-white rounded-sm">submit</button>
 					</div>
-					<p class="text-xs text-white">don't have an account? <a href="/register" class="underline">register</a></p>
+					<p class="text-xs text-white">
+						don't have an account? <a href="/register" rel="noreferrer" aria-label="Register" class="underline">register</a>
+					</p>
 				</form>
 				<div id="login-error"></div>
 			</div>

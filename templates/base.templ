@@ -1,5 +1,7 @@
 package templates
 
+import "zion/internal/storage/db"
+
 templ Head(title string) {
 	<head>
 		<meta charset="utf-8"/>
@@ -21,4 +23,21 @@ templ Base(title string) {
 			</main>
 		</body>
 	</html>
+}
+
+templ Nav(user *db.User) {
+	{{ isLoggedIn := user != nil }}
+	<nav
+		class={ "flex items-center gap-2 p-2 font-mono text-xs w-full bg-neutral-800 text-white", 
+		templ.KV("justify-between", isLoggedIn), 
+		templ.KV("justify-start", !isLoggedIn) }
+	>
+		if isLoggedIn {
+			<h1 aria-label="User Email">{ user.Email }</h1>
+			<button aria-label="Logout" hx-post="/logout" hx-target="body" hx-swap="innerHTML" class="underline">Logout</button>
+		} else {
+			<a href="/login" rel="noreferrer" aria-label="Login" class="underline">Login</a>
+			<a href="/register" rel="noreferrer" aria-label="Register" class="underline">Register</a>
+		}
+	</nav>
 }
