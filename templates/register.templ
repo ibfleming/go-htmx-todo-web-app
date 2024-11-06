@@ -2,6 +2,9 @@ package templates
 
 templ Register() {
 	@Base("Register") {
+		<div class="fixed top-0 left-0 z-50 font-mono text-xs p-2">
+			<a href="/" rel="noreferrer" aria-label="Home" class="underline text-neutral-800">home</a>
+		</div>
 		<div hx-ext="response-targets" class="flex flex-col items-center justify-center h-screen font-mono">
 			<div id="register-container" class="flex flex-col gap-2 items-center justify-center">
 				<h1 class=" text-neutral-800 text-sm font-semibold">register</h1>
@@ -42,13 +45,13 @@ templ Register() {
 	}
 }
 
-templ RegisterError(errMsg string) {
-	<div class="form-error">{ errMsg }</div>
-}
-
 templ RegisterSuccess() {
 	<div class="flex flex-col items-center justify-center gap-2">
 		<div class="form-success">account created successfully</div>
 		<p class="text-xs text-neutral-800">click <a href="/login" class="underline">here</a> to login</p>
 	</div>
+}
+
+templ RegisterError(errMsg string) {
+	<div class="form-error">{ errMsg }</div>
 }

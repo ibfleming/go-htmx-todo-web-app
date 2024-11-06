@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"zion/templates"
 	"net/http"
+	"zion/templates"
 )
 
 type GetNotFound struct{}
@@ -13,9 +13,7 @@ func NewGetNotFound() *GetNotFound {
 
 func (h *GetNotFound) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	c := templates.NotFound()
-	err := c.Render(r.Context(), w)
-
+	err := templates.NotFound().Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "❌ Error rendering template", http.StatusInternalServerError)
 		return

@@ -21,6 +21,22 @@ type Session struct {
 	User      User `gorm:"foreignKey:UserID"`
 }
 
+type Todo struct {
+	gorm.Model
+	Title       string
+	Description string
+	Items       []TodoItem `gorm:"constraint:OnDelete:CASCADE;"`
+	UserID      uint
+	User        User `gorm:"foreignKey:UserID"`
+}
+
+type TodoItem struct {
+	gorm.Model
+	Completed   bool
+	Description string
+	TodoID      uint
+}
+
 type UserStorage interface {
 	CreateUser(email, password string) error
 	GetUser(email string) (*User, error)
@@ -31,7 +47,7 @@ type SessionStorage interface {
 	GetUserFromSession(sessionID, userId string) (*User, error)
 }
 
-var models = []interface{}{&User{}, &Session{}}
+var models = []interface{}{&User{}, &Session{}, &Todo{}}
 
 func Connect(url string) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(url), &gorm.Config{})

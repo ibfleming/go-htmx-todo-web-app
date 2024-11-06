@@ -20,11 +20,12 @@ func NewPostLogoutHandler(params PostLogoutHandlerParams) *PostLogoutHandler {
 }
 
 func (h *PostLogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Reset session cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:    h.sessionCookie,
 		MaxAge:  -1,
 		Expires: time.Now().Add(-100 * time.Hour),
 	})
-
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	w.Header().Set("HX-Redirect", "/")
+	w.WriteHeader(http.StatusOK)
 }

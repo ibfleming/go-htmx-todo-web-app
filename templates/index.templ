@@ -5,5 +5,10 @@ import "zion/internal/storage/db"
 templ Index(user *db.User) {
 	@Base("Home") {
 		@Nav(user)
+		if user != nil {
+			<section class="p-2">
+				@AddTodoButton(user)
+			</section>
+		}
 	}
 }

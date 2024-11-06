@@ -12,3 +12,11 @@ type SessionStorageInterface interface {
 	GetUserFromSession(sessionID, userID string) (*db.User, error)
 	DeleteSession(sessionID string) error
 }
+
+type TodoStorageInterface interface {
+	CreateTodo(todo *db.Todo) (*db.Todo, error)
+	AddTodoItemToTodo(todoID uint, item *db.TodoItem) (*db.TodoItem, error)
+	DeleteTodo(todoID uint) error
+	DeleteChecklistItem(todoID, itemID uint) error
+	GetTodos(userID uint) ([]db.Todo, error)
+}

@@ -20,7 +20,6 @@ func LoadConfig() *Config {
 	if err != nil {
 		log.Fatalf("Failed to load config: %v.", err)
 	}
-
 	return &Config{
 		Environment:       os.Getenv("ENV"),
 		Port:              os.Getenv("HTTP_PORT"),
