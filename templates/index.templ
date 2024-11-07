@@ -1,13 +1,30 @@
 package templates
 
-import "zion/internal/storage/db"
+import (
+	"fmt"
+	"zion/internal/storage/db"
+)
 
 templ Index(user *db.User) {
 	@Base("Home") {
 		@Nav(user)
 		if user != nil {
-			<section class="p-2">
-				@AddTodoButton(user)
+			{{ todoURL := fmt.Sprintf("/%d/todo", user.ID) }}
+			<section class="w-full h-full overflow-hidden relative p-2">
+				<div class="grid-cols-[auto_1fr] grid items-center gap-2">
+					@AddTodoButton(user)
+					<div
+						id="todos"
+						hx-get={ todoURL }
+						hx-target="#todos"
+						hx-trigger="load"
+						hx-swap="innerHTML"
+					>
+						<div class="h-full flex justify-center items-center">
+							@Spinner()
+						</div>
+					</div>
+				</div>
 			</section>
 		}
 	}

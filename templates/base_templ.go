@@ -157,12 +157,12 @@ func Nav(user *db.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h1><button aria-label=\"Logout\" hx-post=\"/logout\" hx-target=\"body\" hx-swap=\"innerHTML\" class=\"underline\">Logout</button>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h1><button aria-label=\"Logout\" hx-post=\"/logout\" hx-target=\"body\" hx-swap=\"innerHTML\" class=\"underline\">logout</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"/login\" rel=\"noreferrer\" aria-label=\"Login\" class=\"underline\">Login</a> <a href=\"/register\" rel=\"noreferrer\" aria-label=\"Register\" class=\"underline\">Register</a>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"/login\" rel=\"noreferrer\" aria-label=\"Login\" class=\"underline\">login</a> <a href=\"/register\" rel=\"noreferrer\" aria-label=\"Register\" class=\"underline\">register</a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

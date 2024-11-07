@@ -60,7 +60,7 @@ func (m *AuthMiddleware) AddUserToContext(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		log.Printf("User is authenticated.")
+		log.Printf("user is authenticated.")
 		ctx := context.WithValue(r.Context(), UserKey, user)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	})

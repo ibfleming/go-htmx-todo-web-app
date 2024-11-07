@@ -71,7 +71,7 @@ func (s *TodoStorage) DeleteChecklistItem(todoID, itemID uint) error {
 	return nil
 }
 
-func (s *TodoStorage) GetTodos(userID uint) ([]db.Todo, error) {
+func (s *TodoStorage) GetTodos(userID string) ([]db.Todo, error) {
 	var todos []db.Todo
 	if err := s.db.Where("user_id = ?", userID).Find(&todos).Error; err != nil {
 		return nil, err

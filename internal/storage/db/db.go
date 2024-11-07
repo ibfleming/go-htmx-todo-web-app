@@ -78,10 +78,10 @@ func CreateModels(db *gorm.DB, mode string) error {
 }
 
 func migrate(db *gorm.DB) error {
-	log.Println("Migrating models into database...")
-	log.Println("Models:")
+	log.Println("migrating database...")
+	log.Print("models:")
 	for _, model := range models {
-		log.Printf("\tModel: %T", model)
+		log.Printf("%T", model)
 	}
 	return db.AutoMigrate(models...)
 }

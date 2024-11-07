@@ -26,10 +26,10 @@ func (s *ZionServer) EstablishRoutes() {
 		)
 
 		// 404 Handler
-		r.NotFound(handlers.NewGetNotFound().ServeHTTP)
+		r.NotFound(handlers.NewNotFoundHandler().ServeHTTP)
 
 		// Home Handler
-		r.Get("/", handlers.NewIndex().ServeHTTP)
+		r.Get("/", handlers.NewGetIndexHandler().ServeHTTP)
 
 		// Login Handler
 		r.Get("/login", handlers.NewGetLoginHandler().ServeHTTP)
@@ -50,5 +50,11 @@ func (s *ZionServer) EstablishRoutes() {
 		r.Post("/logout", handlers.NewPostLogoutHandler(handlers.PostLogoutHandlerParams{
 			SessionCookie: s.sessionCookie,
 		}).ServeHTTP)
+
+		// Todo Handler
+		r.Get("/{userId}/todo", handlers.NewGetTodoHandler(handlers.GetTodoHandlerParameters{
+			Todos: s.todos,
+		}).ServeHTTP)
+
 	})
 }

@@ -26,6 +26,7 @@ type ZionServer struct {
 	db            *gorm.DB
 	users         storage.UserStorageInterface
 	sessions      storage.SessionStorageInterface
+	todos         storage.TodoStorageInterface
 	httpServer    *http.Server
 	hash          *hash.PasswordHash
 	sessionCookie string
@@ -38,6 +39,7 @@ func NewZionServer(
 	dbConn *gorm.DB,
 	userStorage storage.UserStorageInterface,
 	sessionStorage storage.SessionStorageInterface,
+	todoStorage storage.TodoStorageInterface,
 	hash *hash.PasswordHash,
 ) *ZionServer {
 	s := &ZionServer{
@@ -45,6 +47,7 @@ func NewZionServer(
 		db:            dbConn,
 		users:         userStorage,
 		sessions:      sessionStorage,
+		todos:         todoStorage,
 		hash:          hash,
 		sessionCookie: cfg.SessionCookieName,
 		httpServer: &http.Server{
@@ -84,6 +87,9 @@ func InitializeZionServer(cfg *config.Config) (*ZionServer, error) {
 	sessionStorage := storage.NewSessionStorage(storage.SessionStorageParams{
 		DB: dbConn,
 	})
+	todoStorage := storage.NewTodoStorage(storage.TodoStorageParams{
+		DB: dbConn,
+	})
 
 	// (5) Create Zion Server
 	server := NewZionServer(
@@ -91,6 +97,7 @@ func InitializeZionServer(cfg *config.Config) (*ZionServer, error) {
 		dbConn,
 		userStorage,
 		sessionStorage,
+		todoStorage,
 		passwordHash,
 	)
 
@@ -108,12 +115,12 @@ func (s *ZionServer) Start() {
 		defer s.wg.Done() // Decrement the WaitGroup counter when the server stops
 		err := s.httpServer.ListenAndServe()
 		if errors.Is(err, http.ErrServerClosed) {
-			log.Printf("❎ Server is shutting down...")
+			log.Printf("server is shutting down...")
 		} else if err != nil {
-			log.Fatalf("❌ Server error: %v.", err)
+			log.Fatalf("server error: %v.", err)
 		}
 	}()
-	log.Printf("Starting server on %s", s.httpServer.Addr)
+	log.Printf("starting server on port %s", s.config.Port)
 
 	// Block until a kill signal is received
 	<-killSig
@@ -124,14 +131,14 @@ func (s *ZionServer) Start() {
 
 	// Attempt to gracefully shut down the server
 	if err := s.httpServer.Shutdown(ctx); err != nil {
-		log.Printf("❌ Server shutdown failed: %v", err)
+		log.Printf("server shutdown failed: %v", err)
 	} else {
-		log.Print("✅ Server gracefully shutdown.")
+		log.Print("server gracefully shutdown.")
 	}
 
 	// Wait for all background goroutines to finish
 	s.wg.Wait()
-	log.Print("❎ All background operations complete. Server shutdown complete.")
+	log.Print("all background operations complete. Server shutdown complete.")
 }
 
 func (s *ZionServer) SetupRouter() {

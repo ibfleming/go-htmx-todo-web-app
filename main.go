@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	log.Println("✨ Zion HTTP Server ✨")
 	// Load configuration
 	cfg := config.LoadConfig()
 	// Create a new server

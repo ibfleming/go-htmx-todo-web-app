@@ -34,10 +34,10 @@ templ Nav(user *db.User) {
 	>
 		if isLoggedIn {
 			<h1 aria-label="User Email">{ user.Email }</h1>
-			<button aria-label="Logout" hx-post="/logout" hx-target="body" hx-swap="innerHTML" class="underline">Logout</button>
+			<button aria-label="Logout" hx-post="/logout" hx-target="body" hx-swap="innerHTML" class="underline">logout</button>
 		} else {
-			<a href="/login" rel="noreferrer" aria-label="Login" class="underline">Login</a>
-			<a href="/register" rel="noreferrer" aria-label="Register" class="underline">Register</a>
+			<a href="/login" rel="noreferrer" aria-label="Login" class="underline">login</a>
+			<a href="/register" rel="noreferrer" aria-label="Register" class="underline">register</a>
 		}
 	</nav>
 }

@@ -1,0 +1,17 @@
+package templates
+
+import "zion/internal/storage/db"
+
+templ TodosList(todos []db.Todo) {
+	if len(todos) == 0 {
+		<div class="h-full flex justify-center items-center">
+			<h1 class="font-mono text-xs text-neutral-400">No todo lists currently available.</h1>
+		</div>
+	} else {
+		<ul>
+			for _, item := range todos {
+				<li>{ item.Title }</li>
+			}
+		</ul>
+	}
+}

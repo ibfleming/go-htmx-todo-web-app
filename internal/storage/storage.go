@@ -18,5 +18,5 @@ type TodoStorageInterface interface {
 	AddTodoItemToTodo(todoID uint, item *db.TodoItem) (*db.TodoItem, error)
 	DeleteTodo(todoID uint) error
 	DeleteChecklistItem(todoID, itemID uint) error
-	GetTodos(userID uint) ([]db.Todo, error)
+	GetTodos(userID string) ([]db.Todo, error)
 }

@@ -5,13 +5,13 @@ import (
 	"zion/templates"
 )
 
-type GetNotFound struct{}
+type NotFound struct{}
 
-func NewGetNotFound() *GetNotFound {
-	return &GetNotFound{}
+func NewNotFoundHandler() *NotFound {
+	return &NotFound{}
 }
 
-func (h *GetNotFound) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *NotFound) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	err := templates.NotFound().Render(r.Context(), w)
 	if err != nil {
