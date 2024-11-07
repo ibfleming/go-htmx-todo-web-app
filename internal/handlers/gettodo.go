@@ -31,6 +31,14 @@ func (h *GetTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(todos) == 0 {
+		err = templates.EmptyTodoList().Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	err = templates.TodosList(todos).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "error rendering template", http.StatusInternalServerError)

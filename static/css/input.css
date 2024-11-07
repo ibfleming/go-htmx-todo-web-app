@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+.zion-indicator {
+  opacity: 0;
+  display: none;
+}
+.htmx-request .zion-indicator {
+  opacity: 1;
+  display: flex;
+  transition: opacity 200ms ease-in;
+}
+.htmx-request.zion-indicator {
+  opacity: 1;
+  display: flex;
+  transition: opacity 200ms ease-in;
+}
+
 .htmx-indicator {
   opacity: 0;
 }

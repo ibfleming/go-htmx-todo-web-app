@@ -1,0 +1,22 @@
+package templates
+
+import (
+	"fmt"
+	"zion/internal/storage/db"
+)
+
+templ TodoDashboard(user *db.User) {
+	{{ todoURL := fmt.Sprintf("/%d/todos", user.ID) }}
+	<div
+		id="todo-dashboard"
+		hx-get={ todoURL }
+		hx-target="#todo-dashboard"
+		hx-trigger="load once"
+		hx-swap="outerHTML"
+		hx-indicator="#spinner"
+	>
+		<div id="spinner" class="zion-indicator flex justify-center items-center">
+			@Spinner()
+		</div>
+	</div>
+}

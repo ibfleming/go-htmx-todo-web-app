@@ -51,8 +51,13 @@ func (s *ZionServer) EstablishRoutes() {
 			SessionCookie: s.sessionCookie,
 		}).ServeHTTP)
 
-		// Todo Handler
-		r.Get("/{userId}/todo", handlers.NewGetTodoHandler(handlers.GetTodoHandlerParameters{
+		// Get All Todos Handler
+		r.Get("/{userId}/todos", handlers.NewGetTodoHandler(handlers.GetTodoHandlerParameters{
+			Todos: s.todos,
+		}).ServeHTTP)
+
+		// Add Todo Handler
+		r.Post("/todo", handlers.NewPostTodoHandler(handlers.PostTodoHandlerParameters{
 			Todos: s.todos,
 		}).ServeHTTP)
 

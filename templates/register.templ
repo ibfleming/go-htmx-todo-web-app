@@ -2,27 +2,27 @@ package templates
 
 templ Register() {
 	@Base("Register") {
-		<div class="fixed top-0 left-0 z-50 font-mono text-xs p-2">
-			<a href="/" rel="noreferrer" aria-label="Home" class="underline text-neutral-800">home</a>
+		<div class="fixed top-0 left-0 z-50 p-2 font-mono text-xs">
+			<a href="/" rel="noreferrer" aria-label="Home" class="text-neutral-800 underline">home</a>
 		</div>
-		<div hx-ext="response-targets" class="flex flex-col items-center justify-center h-screen font-mono">
-			<div id="register-container" class="flex flex-col gap-2 items-center justify-center">
-				<h1 class=" text-neutral-800 text-sm font-semibold">register</h1>
+		<div hx-ext="response-targets" class="h-screen flex flex-col justify-center items-center font-mono">
+			<div id="register-container" class="flex flex-col justify-center items-center gap-2">
+				<h1 class="text-sm font-semibold text-neutral-800">register</h1>
 				<form
 					hx-post="/register"
 					hx-trigger="submit"
 					hx-target="#register-container"
 					hx-target-error="#register-error"
 					hx-swap="outerHTML"
-					class="flex flex-col gap-2 items-center w-[256px] min-w-[256px] max-w-[256px] p-2 rounded-sm bg-neutral-800 shadow-md"
+					class="max-w-[256px] min-w-[256px] w-[256px] flex flex-col items-center gap-2 p-2 bg-neutral-800 rounded-sm shadow-md"
 				>
-					<div class="flex flex-col gap-2 items-start w-full">
+					<div class="w-full flex flex-col items-start gap-2">
 						<input
 							type="email"
 							name="email"
 							placeholder="name@company.com"
 							autocomplete="on"
-							class="form-input border-none px-2 p-0.5 w-full text-xs rounded-sm"
+							class="form-input w-full p-0.5 px-2 text-xs rounded-sm border-none"
 							required
 						/>
 						<input
@@ -30,7 +30,7 @@ templ Register() {
 							name="password"
 							placeholder="••••••••"
 							autocomplete="on"
-							class="form-input border-none px-2 py-0.5 w-full text-xs rounded-sm"
+							class="form-input w-full px-2 py-0.5 text-xs rounded-sm border-none"
 							required
 						/>
 						<button type="submit" class="button-13 px-2 py-0.5 text-white rounded-sm">submit</button>
@@ -46,7 +46,7 @@ templ Register() {
 }
 
 templ RegisterSuccess() {
-	<div class="flex flex-col items-center justify-center gap-2">
+	<div class="flex flex-col justify-center items-center gap-2">
 		<div class="form-success">account created successfully</div>
 		<p class="text-xs text-neutral-800">click <a href="/login" class="underline">here</a> to login</p>
 	</div>
