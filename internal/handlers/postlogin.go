@@ -19,14 +19,14 @@ type PostLoginHandler struct {
 	sessionCookie string
 }
 
-type PostLoginHandlerParameters struct {
+type PostLoginHandlerParams struct {
 	Users         storage.UserStorageInterface
 	Sessions      storage.SessionStorageInterface
 	PasswordHash  *hash.PasswordHash
 	SessionCookie string
 }
 
-func NewPostLoginHandler(params PostLoginHandlerParameters) *PostLoginHandler {
+func NewPostLoginHandler(params PostLoginHandlerParams) *PostLoginHandler {
 	return &PostLoginHandler{
 		users:         params.Users,
 		sessions:      params.Sessions,

@@ -5,10 +5,12 @@ import "zion/internal/storage/db"
 templ Index(user *db.User) {
 	@Base("Home") {
 		@Nav(user)
-		<section class="p-2 font-mono">
+		<section class="pt-2 font-mono">
 			if user != nil {
-				<div class="grid-cols-[minmax(192px,_192px)_1fr] grid gap-4">
-					@CreateTodo()
+				<div class="grid-cols-[auto_1fr] grid">
+					<div class="w-full h-full px-8">
+						@CreateTodo()
+					</div>
 					@TodoDashboard(user)
 				</div>
 			} else {

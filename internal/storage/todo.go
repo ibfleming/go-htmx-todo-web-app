@@ -49,7 +49,7 @@ func (s *TodoStorage) AddTodoItemToTodo(todoID uint, item *db.TodoItem) (*db.Tod
 	return item, nil
 }
 
-func (s *TodoStorage) DeleteTodo(todoID uint) error {
+func (s *TodoStorage) DeleteTodo(todoID string) error {
 	var todo db.Todo
 	if err := s.db.First(&todo, todoID).Error; err != nil {
 		return err

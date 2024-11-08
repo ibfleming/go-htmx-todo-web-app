@@ -14,11 +14,11 @@ type PostTodoHandler struct {
 	todos storage.TodoStorageInterface
 }
 
-type PostTodoHandlerParameters struct {
+type PostTodoHandlerParams struct {
 	Todos storage.TodoStorageInterface
 }
 
-func NewPostTodoHandler(params PostTodoHandlerParameters) *PostTodoHandler {
+func NewPostTodoHandler(params PostTodoHandlerParams) *PostTodoHandler {
 	return &PostTodoHandler{
 		todos: params.Todos,
 	}
@@ -48,7 +48,7 @@ func (h *PostTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = templates.TodosList(todos).Render(r.Context(), w)
+	err = templates.TodoList(todos).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "error rendering template", http.StatusInternalServerError)
 		return

@@ -33,7 +33,7 @@ func (s *ZionServer) EstablishRoutes() {
 
 		// Login Handler
 		r.Get("/login", handlers.NewGetLoginHandler().ServeHTTP)
-		r.Post("/login", handlers.NewPostLoginHandler(handlers.PostLoginHandlerParameters{
+		r.Post("/login", handlers.NewPostLoginHandler(handlers.PostLoginHandlerParams{
 			Users:         s.users,
 			Sessions:      s.sessions,
 			PasswordHash:  s.hash,
@@ -42,7 +42,7 @@ func (s *ZionServer) EstablishRoutes() {
 
 		// Register Handler
 		r.Get("/register", handlers.NewGetRegisterHandler().ServeHTTP)
-		r.Post("/register", handlers.NewPostRegisterHandler(handlers.PostRegisterHandlerParameters{
+		r.Post("/register", handlers.NewPostRegisterHandler(handlers.PostRegisterHandlerParams{
 			Users: s.users,
 		}).ServeHTTP)
 
@@ -52,14 +52,18 @@ func (s *ZionServer) EstablishRoutes() {
 		}).ServeHTTP)
 
 		// Get All Todos Handler
-		r.Get("/{userId}/todos", handlers.NewGetTodoHandler(handlers.GetTodoHandlerParameters{
+		r.Get("/{id}/todos", handlers.NewGetTodoHandler(handlers.GetTodoHandlerParams{
 			Todos: s.todos,
 		}).ServeHTTP)
 
 		// Add Todo Handler
-		r.Post("/todo", handlers.NewPostTodoHandler(handlers.PostTodoHandlerParameters{
+		r.Post("/todo", handlers.NewPostTodoHandler(handlers.PostTodoHandlerParams{
 			Todos: s.todos,
 		}).ServeHTTP)
 
+		// Delete Todo Handler
+		r.Delete("/todo/{id}", handlers.NewDeleteTodoHandler(handlers.DeleteTodoHandlerParams{
+			Todos: s.todos,
+		}).ServeHTTP)
 	})
 }

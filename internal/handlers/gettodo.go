@@ -12,18 +12,18 @@ type GetTodoHandler struct {
 	todos storage.TodoStorageInterface
 }
 
-type GetTodoHandlerParameters struct {
+type GetTodoHandlerParams struct {
 	Todos storage.TodoStorageInterface
 }
 
-func NewGetTodoHandler(params GetTodoHandlerParameters) *GetTodoHandler {
+func NewGetTodoHandler(params GetTodoHandlerParams) *GetTodoHandler {
 	return &GetTodoHandler{
 		todos: params.Todos,
 	}
 }
 
 func (h *GetTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	userId := chi.URLParam(r, "userId")
+	userId := chi.URLParam(r, "id")
 	todos, err := h.todos.GetTodos(userId)
 
 	if err != nil {
@@ -39,7 +39,7 @@ func (h *GetTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = templates.TodosList(todos).Render(r.Context(), w)
+	err = templates.TodoList(todos).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "error rendering template", http.StatusInternalServerError)
 		return

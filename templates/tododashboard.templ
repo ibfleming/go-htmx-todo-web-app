@@ -7,16 +7,25 @@ import (
 
 templ TodoDashboard(user *db.User) {
 	{{ todoURL := fmt.Sprintf("/%d/todos", user.ID) }}
-	<div
-		id="todo-dashboard"
-		hx-get={ todoURL }
-		hx-target="#todo-dashboard"
-		hx-trigger="load once"
-		hx-swap="outerHTML"
-		hx-indicator="#spinner"
-	>
-		<div id="spinner" class="zion-indicator flex justify-center items-center">
-			@Spinner()
-		</div>
+	<div class="flex flex-col gap-2">
+		<h1 class="text-sm font-semibold text-neutral-800">todos</h1>
+		<ul
+			id="todos"
+			hx-get={ todoURL }
+			hx-target="#todos"
+			hx-trigger="load once"
+			hx-swap="innerHTML"
+			hx-indicator=""
+			class="grid-cols-[repeat(auto-fill,_minmax(256px,256px))] grid items-center gap-8 font-mono"
+		>
+			@TodoSkeleton()
+			@TodoSkeleton()
+			@TodoSkeleton()
+			@TodoSkeleton()
+			@TodoSkeleton()
+			@TodoSkeleton()
+			@TodoSkeleton()
+			@TodoSkeleton()
+		</ul>
 	</div>
 }

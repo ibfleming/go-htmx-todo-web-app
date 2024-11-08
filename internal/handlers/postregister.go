@@ -11,11 +11,11 @@ type PostRegisterHandler struct {
 	users storage.UserStorageInterface
 }
 
-type PostRegisterHandlerParameters struct {
+type PostRegisterHandlerParams struct {
 	Users storage.UserStorageInterface
 }
 
-func NewPostRegisterHandler(params PostRegisterHandlerParameters) *PostRegisterHandler {
+func NewPostRegisterHandler(params PostRegisterHandlerParams) *PostRegisterHandler {
 	return &PostRegisterHandler{
 		users: params.Users,
 	}
