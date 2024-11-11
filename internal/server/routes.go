@@ -52,17 +52,27 @@ func (s *ZionServer) EstablishRoutes() {
 		}).ServeHTTP)
 
 		// Get All Todos Handler
-		r.Get("/{id}/todos", handlers.NewGetTodoHandler(handlers.GetTodoHandlerParams{
+		r.Get("/{userId}/todo", handlers.NewGetTodoHandler(handlers.GetTodoHandlerParams{
 			Todos: s.todos,
 		}).ServeHTTP)
 
 		// Add Todo Handler
-		r.Post("/todo", handlers.NewPostTodoHandler(handlers.PostTodoHandlerParams{
+		r.Post("/{userId}/todo", handlers.NewPostTodoHandler(handlers.PostTodoHandlerParams{
 			Todos: s.todos,
 		}).ServeHTTP)
 
 		// Delete Todo Handler
-		r.Delete("/todo/{id}", handlers.NewDeleteTodoHandler(handlers.DeleteTodoHandlerParams{
+		r.Delete("/{userId}/todo/{todoId}", handlers.NewDeleteTodoHandler(handlers.DeleteTodoHandlerParams{
+			Todos: s.todos,
+		}).ServeHTTP)
+
+		// Get All Todo Checklist Items
+		r.Get("/{userId}/todo/{todoId}/item", handlers.NewGetTodoItemsHandler(handlers.GetTodoItemsHandlerParams{
+			Todos: s.todos,
+		}).ServeHTTP)
+
+		// Add Todo Checklist Item
+		r.Post("/{userId}/todo/{todoId}/item", handlers.NewPostTodoItemHandler(handlers.PostTodoItemHandlerParams{
 			Todos: s.todos,
 		}).ServeHTTP)
 	})

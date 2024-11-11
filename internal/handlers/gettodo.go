@@ -23,8 +23,8 @@ func NewGetTodoHandler(params GetTodoHandlerParams) *GetTodoHandler {
 }
 
 func (h *GetTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	userId := chi.URLParam(r, "id")
-	todos, err := h.todos.GetTodos(userId)
+	userId := chi.URLParam(r, "userId")
+	todos, err := h.todos.GetAllTodos(userId)
 
 	if err != nil {
 		http.Error(w, "error fetching todos", http.StatusInternalServerError)

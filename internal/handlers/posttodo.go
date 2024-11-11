@@ -42,7 +42,7 @@ func (h *PostTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todos, err := h.todos.GetTodos(fmt.Sprintf("%d", user.ID))
+	todos, err := h.todos.GetAllTodos(fmt.Sprintf("%d", user.ID))
 	if err != nil {
 		http.Error(w, "error fetching todos", http.StatusInternalServerError)
 		return

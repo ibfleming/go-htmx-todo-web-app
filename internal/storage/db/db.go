@@ -25,7 +25,7 @@ type Todo struct {
 	gorm.Model
 	Title       string
 	Description string
-	Items       []TodoItem `gorm:"constraint:OnDelete:CASCADE;"`
+	Items       []TodoItem `gorm:"foreignKey:TodoID;constraint:OnDelete:CASCADE;"`
 	UserID      uint
 	User        User `gorm:"foreignKey:UserID"`
 }
@@ -47,7 +47,7 @@ type SessionStorage interface {
 	GetUserFromSession(sessionID, userId string) (*User, error)
 }
 
-var models = []interface{}{&User{}, &Session{}, &Todo{}}
+var models = []interface{}{&User{}, &Session{}, &Todo{}, &TodoItem{}}
 
 func Connect(url string) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(url), &gorm.Config{})

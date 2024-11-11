@@ -9,7 +9,7 @@ templ Index(user *db.User) {
 			if user != nil {
 				<div class="grid-cols-[auto_1fr] grid">
 					<div class="w-full h-full px-8">
-						@CreateTodo()
+						@CreateTodo(user)
 					</div>
 					@TodoDashboard(user)
 				</div>

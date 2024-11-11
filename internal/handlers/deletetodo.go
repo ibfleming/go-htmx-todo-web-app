@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
-	"zion/internal/middleware/auth"
 	"zion/internal/storage"
 	"zion/templates"
 
@@ -25,9 +23,8 @@ func NewDeleteTodoHandler(params DeleteTodoHandlerParams) *DeleteTodoHandler {
 }
 
 func (h *DeleteTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	todoId := chi.URLParam(r, "id")
-	user := auth.GetUser(r.Context())
-	userId := strconv.FormatUint(uint64(user.ID), 10)
+	todoId := chi.URLParam(r, "todoId")
+	userId := chi.URLParam(r, "userId")
 
 	err := h.todos.DeleteTodo(todoId)
 	if err != nil {
@@ -35,7 +32,7 @@ func (h *DeleteTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo, _ := h.todos.GetTodos(userId)
+	todo, _ := h.todos.GetAllTodos(userId)
 	if len(todo) == 0 {
 		err = templates.EmptyTodoList().Render(r.Context(), w)
 		if err != nil {

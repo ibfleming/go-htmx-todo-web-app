@@ -34,21 +34,21 @@ func TodoDashboard(user *db.User) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		todoURL := fmt.Sprintf("/%d/todos", user.ID)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-2\"><h1 class=\"text-sm font-semibold text-neutral-800\">todos</h1><ul id=\"todos\" hx-get=\"")
+		getAllTodosURL := fmt.Sprintf("/%d/todo", user.ID)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-2 pb-8\"><h1 class=\"text-sm font-semibold text-neutral-800\">todos</h1><ul id=\"todos\" hx-get=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(todoURL)
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(getAllTodosURL)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/tododashboard.templ`, Line: 14, Col: 19}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/tododashboard.templ`, Line: 14, Col: 26}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#todos\" hx-trigger=\"load once\" hx-swap=\"innerHTML\" hx-indicator=\"\" class=\"grid-cols-[repeat(auto-fill,_minmax(256px,256px))] grid items-center gap-8 font-mono\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"this\" hx-trigger=\"load once\" hx-swap=\"innerHTML\" class=\"grid-cols-[repeat(auto-fill,_minmax(256px,256px))] grid items-start gap-8 font-mono\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

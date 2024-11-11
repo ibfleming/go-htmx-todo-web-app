@@ -1,8 +1,14 @@
 package templates
 
-templ CreateTodo() {
+import (
+	"fmt"
+	"zion/internal/storage/db"
+)
+
+templ CreateTodo(user *db.User) {
+	{{ postTodoURL := fmt.Sprintf("/%d/todo", user.ID) }}
 	<form
-		hx-post="/todo"
+		hx-post={ postTodoURL }
 		hx-trigger="submit"
 		hx-target="#todos"
 		hx-swap="innerHTML"

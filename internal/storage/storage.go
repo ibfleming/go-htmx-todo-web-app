@@ -15,8 +15,10 @@ type SessionStorageInterface interface {
 
 type TodoStorageInterface interface {
 	CreateTodo(todo *db.Todo) (*db.Todo, error)
-	AddTodoItemToTodo(todoID uint, item *db.TodoItem) (*db.TodoItem, error)
-	DeleteTodo(todoID string) error
-	DeleteChecklistItem(todoID, itemID uint) error
-	GetTodos(userID string) ([]db.Todo, error)
+	CreateTodoItem(todoItem *db.TodoItem) (*db.TodoItem, error)
+	DeleteTodo(todoId string) error
+	DeleteTodoItem(todoItemId string) error
+	DeleteChecklistItem(todoId, itemId uint) error
+	GetAllTodos(userId string) ([]db.Todo, error)
+	GetTodoItems(todoId string) ([]db.TodoItem, error)
 }
