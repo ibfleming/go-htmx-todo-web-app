@@ -3,9 +3,6 @@ package handlers
 import (
 	"net/http"
 	"zion/internal/storage"
-	"zion/templates"
-
-	"github.com/go-chi/chi/v5"
 )
 
 type GetTodoHandler struct {
@@ -23,25 +20,4 @@ func NewGetTodoHandler(params GetTodoHandlerParams) *GetTodoHandler {
 }
 
 func (h *GetTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	userId := chi.URLParam(r, "userId")
-	todos, err := h.todos.GetAllTodos(userId)
-
-	if err != nil {
-		http.Error(w, "error fetching todos", http.StatusInternalServerError)
-		return
-	}
-
-	if len(todos) == 0 {
-		err = templates.EmptyTodoList().Render(r.Context(), w)
-		if err != nil {
-			http.Error(w, "error rendering template", http.StatusInternalServerError)
-			return
-		}
-	}
-
-	err = templates.TodoList(todos).Render(r.Context(), w)
-	if err != nil {
-		http.Error(w, "error rendering template", http.StatusInternalServerError)
-		return
-	}
 }

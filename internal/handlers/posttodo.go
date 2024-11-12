@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"zion/internal/middleware/auth"
 	"zion/internal/storage"
@@ -25,13 +23,13 @@ func NewPostTodoHandler(params PostTodoHandlerParams) *PostTodoHandler {
 }
 
 func (h *PostTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// (1) Get user, title, and description
 	user := auth.GetUser(r.Context())
 	title := r.FormValue("title")
 	description := r.FormValue("description")
 
-	log.Printf("User: %s, Title: %s, Description: %s", user.Email, title, description)
-
-	_, err := h.todos.CreateTodo(&db.Todo{
+	// (2) Create the todo (addsto database)
+	todo, err := h.todos.CreateTodo(&db.Todo{
 		Title:       title,
 		Description: description,
 		UserID:      user.ID,
@@ -42,13 +40,8 @@ func (h *PostTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todos, err := h.todos.GetAllTodos(fmt.Sprintf("%d", user.ID))
-	if err != nil {
-		http.Error(w, "error fetching todos", http.StatusInternalServerError)
-		return
-	}
-
-	err = templates.TodoList(todos).Render(r.Context(), w)
+	// (3) Return the html
+	err = templates.SingleTodo(*todo).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "error rendering template", http.StatusInternalServerError)
 		return

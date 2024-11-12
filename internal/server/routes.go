@@ -29,7 +29,9 @@ func (s *ZionServer) EstablishRoutes() {
 		r.NotFound(handlers.NewNotFoundHandler().ServeHTTP)
 
 		// Home Handler
-		r.Get("/", handlers.NewGetIndexHandler().ServeHTTP)
+		r.Get("/", handlers.NewGetIndexHandler(handlers.IndexParams{
+			Todos: s.todos,
+		}).ServeHTTP)
 
 		// Login Handler
 		r.Get("/login", handlers.NewGetLoginHandler().ServeHTTP)
@@ -52,28 +54,37 @@ func (s *ZionServer) EstablishRoutes() {
 		}).ServeHTTP)
 
 		// Get All Todos Handler
-		r.Get("/{userId}/todo", handlers.NewGetTodoHandler(handlers.GetTodoHandlerParams{
-			Todos: s.todos,
-		}).ServeHTTP)
+		// r.Get("/todo", handlers.NewGetTodoHandler(handlers.GetTodoHandlerParams{
+		// 	Todos: s.todos,
+		// }).ServeHTTP)
 
 		// Add Todo Handler
-		r.Post("/{userId}/todo", handlers.NewPostTodoHandler(handlers.PostTodoHandlerParams{
+		r.Post("/todo/create", handlers.NewPostTodoHandler(handlers.PostTodoHandlerParams{
 			Todos: s.todos,
 		}).ServeHTTP)
 
 		// Delete Todo Handler
-		r.Delete("/{userId}/todo/{todoId}", handlers.NewDeleteTodoHandler(handlers.DeleteTodoHandlerParams{
+		r.Delete("/todo/{todoId}", handlers.NewDeleteTodoHandler(handlers.DeleteTodoHandlerParams{
 			Todos: s.todos,
 		}).ServeHTTP)
 
-		// Get All Todo Checklist Items
-		r.Get("/{userId}/todo/{todoId}/item", handlers.NewGetTodoItemsHandler(handlers.GetTodoItemsHandlerParams{
+		r.Post("/todo/{todoId}/item/create", handlers.NewPostTodoItemHandler(handlers.PostTodoItemHandlerParams{
 			Todos: s.todos,
 		}).ServeHTTP)
 
-		// Add Todo Checklist Item
-		r.Post("/{userId}/todo/{todoId}/item", handlers.NewPostTodoItemHandler(handlers.PostTodoItemHandlerParams{
+		r.Delete("/todo/{todoId}/item/{itemId}", handlers.NewDeleteTodoItemHandler(handlers.DeleteTodoItemHandlerParams{
 			Todos: s.todos,
 		}).ServeHTTP)
+
+		/*
+			// Get All Todo Checklist Items
+			r.Get("/{userId}/todo/{todoId}/item", handlers.NewGetTodoItemsHandler(handlers.GetTodoItemsHandlerParams{
+				Todos: s.todos,
+			}).ServeHTT
+			// Add Todo Checklist Item
+			r.Post("/{userId}/todo/{todoId}/item", handlers.NewPostTodoItemHandler(handlers.PostTodoItemHandlerParams{
+				Todos: s.todos,
+			}).ServeHTTP)
+		*/
 	})
 }

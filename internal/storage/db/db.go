@@ -3,6 +3,7 @@ package db
 import (
 	"log"
 	zerr "zion/internal/errors"
+	"zion/internal/hash"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -54,11 +55,11 @@ func Connect(url string) (*gorm.DB, error) {
 	return db, err
 }
 
-func CreateModels(db *gorm.DB, mode string) error {
+func CreateModels(db *gorm.DB, mode string, hash *hash.PasswordHash) error {
 	switch mode {
 	case "clear":
 		{
-			log.Println("🔨 Clearing the store...")
+			log.Println("clearing database...")
 			err := db.Migrator().DropTable(models...)
 			if err != nil {
 				return zerr.ErrDropTables
@@ -67,8 +68,63 @@ func CreateModels(db *gorm.DB, mode string) error {
 		}
 	case "seed":
 		{
-			log.Println("🔨 Seeding the store...")
-			return migrate(db)
+			log.Println("clearing database...")
+			err := db.Migrator().DropTable(models...)
+			if err != nil {
+				return zerr.ErrDropTables
+			}
+
+			err = migrate(db)
+			if err != nil {
+				return err
+			}
+
+			log.Println("seeding database...")
+
+			password, _ := hash.GenerateFromPassword("2211")
+
+			mockUser := &User{
+				Email:    "admin@localhost",
+				Password: password,
+			}
+
+			db.Create(mockUser)
+
+			mockTodo1 := &Todo{
+				Title:       "Todo 1",
+				Description: "This is the first todo",
+				UserID:      mockUser.ID,
+				User:        *mockUser,
+			}
+
+			db.Create(mockTodo1)
+
+			mockTodoItem1 := &TodoItem{
+				Completed:   false,
+				Description: "This is the first todo item",
+				TodoID:      mockTodo1.ID,
+			}
+
+			mockTodoItem2 := &TodoItem{
+				Completed:   true,
+				Description: "This is the second todo item",
+				TodoID:      mockTodo1.ID,
+			}
+
+			db.Create(mockTodoItem1)
+			db.Create(mockTodoItem2)
+
+			db.Model(&mockTodo1).Association("Items").Append(mockTodoItem1)
+			db.Model(&mockTodo1).Association("Items").Append(mockTodoItem2)
+
+			db.Create(&Todo{
+				Title:       "Todo 2",
+				Description: "This is the second todo",
+				UserID:      mockUser.ID,
+				User:        *mockUser,
+			})
+
+			return err
 		}
 	default:
 		{

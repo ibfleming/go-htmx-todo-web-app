@@ -60,7 +60,7 @@ func (m *AuthMiddleware) AddUserToContext(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		log.Printf("user is authenticated.")
+		log.Printf("[AUTH] Authenticated -- ID: %d, Email: %s", user.ID, user.Email)
 		ctx := context.WithValue(r.Context(), UserKey, user)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	})
@@ -72,6 +72,14 @@ func GetUser(ctx context.Context) *db.User {
 		return nil
 	}
 	return user.(*db.User)
+}
+
+func GetUserID(ctx context.Context) uint {
+	user := GetUser(ctx)
+	if user == nil {
+		return 0
+	}
+	return user.ID
 }
 
 func IsLoggedIn(r *http.Request) bool {

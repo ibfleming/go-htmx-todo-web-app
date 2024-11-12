@@ -1,13 +1,9 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
-	"strconv"
 	"zion/internal/storage"
-	"zion/internal/storage/db"
-	"zion/templates"
-
-	"github.com/go-chi/chi/v5"
 )
 
 type PostTodoItemHandler struct {
@@ -25,33 +21,13 @@ func NewPostTodoItemHandler(params PostTodoItemHandlerParams) *PostTodoItemHandl
 }
 
 func (h *PostTodoItemHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	todoId := chi.URLParam(r, "todoId")
-
-	tempTodoId, err := strconv.ParseUint(todoId, 10, 32)
-	if err != nil {
-		http.Error(w, "invalid todoId", http.StatusBadRequest)
-		return
-	}
-
-	_, err = h.todos.CreateTodoItem(&db.TodoItem{
-		TodoID:      uint(tempTodoId),
-		Description: "",
-		Completed:   false,
-	})
-	if err != nil {
-		http.Error(w, "error creating todo item", http.StatusInternalServerError)
-		return
-	}
-
-	todoItems, err := h.todos.GetTodoItems(todoId)
-	if err != nil {
-		http.Error(w, "error fetching todo items", http.StatusInternalServerError)
-		return
-	}
-
-	err = templates.TodoItemList(todoItems).Render(r.Context(), w)
-	if err != nil {
-		http.Error(w, "error rendering template", http.StatusInternalServerError)
-		return
-	}
+	/*
+		/todo/{todoId}/item/create
+			1. get the todo parent
+			2. if valid create the todo itemm
+			3. add todo item to database
+			4. associate the item to the parent todo
+			5. return the html li element
+	*/
+	log.Printf("PostTodoItemHandler: %v", r.URL.Path)
 }

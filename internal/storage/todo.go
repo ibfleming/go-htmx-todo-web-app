@@ -1,6 +1,9 @@
 package storage
 
 import (
+	"errors"
+	"log"
+	"strconv"
 	"zion/internal/storage/db"
 
 	"gorm.io/gorm"
@@ -41,18 +44,54 @@ func (s *TodoStorage) DeleteTodo(todoId string) error {
 	return nil
 }
 
-func (s *TodoStorage) DeleteTodoItem(todoItemId string) error {
-	return nil
+func (s *TodoStorage) DeleteTodoItem(todoId, itemId string) (error, bool) {
+	todoIdUInt, err := strconv.ParseUint(todoId, 10, 32)
+	if err != nil {
+		log.Printf("%v\n", err)
+		return err, false
+	}
+
+	itemIdUInt, err := strconv.ParseUint(itemId, 10, 32)
+	if err != nil {
+		return err, false
+	}
+
+	var todo db.Todo
+	if err := s.db.Preload("Items").First(&todo, todoIdUInt).Error; err != nil {
+		return err, false
+	}
+
+	var itemDelete *db.TodoItem
+	for i, item := range todo.Items {
+		if item.ID == uint(itemIdUInt) {
+			itemDelete = &todo.Items[i]
+			break
+		}
+	}
+
+	if itemDelete == nil {
+		return errors.New("item not found"), false
+	}
+
+	if err := s.db.Delete(itemDelete).Error; err != nil {
+		return err, false
+	}
+
+	if err := s.db.Preload("Items").First(&todo, todoIdUInt).Error; err != nil {
+		return err, false
+	}
+
+	if len(todo.Items) == 0 {
+		return nil, true
+	}
+
+	return nil, false
 }
 
-func (s *TodoStorage) DeleteChecklistItem(todoId, itemId uint) error {
-	return nil
-}
-
-func (s *TodoStorage) GetAllTodos(userId string) ([]db.Todo, error) {
+func (s *TodoStorage) GetAllTodosForUser(userId uint) ([]db.Todo, error) {
 	var todos []db.Todo
 	if err := s.db.
-		Where("user_id = ?", userId).
+		Where(&db.Todo{UserID: userId}).
 		Preload("Items").
 		Find(&todos).Error; err != nil {
 		return nil, err

@@ -64,20 +64,20 @@ func NewZionServer(
 }
 
 func InitializeZionServer(cfg *config.Config) (*ZionServer, error) {
-	// (1) Connect to the database
+	// (1) Create password hash
+	passwordHash := hash.NewPasswordHash()
+
+	// (2) Connect to the database
 	dbConn, err := db.Connect(cfg.DatabaseURL)
 	if err != nil {
 		return nil, zerr.ErrFailedToConnectToDB
 	}
 
-	// (2) Create the database models (or migrate)
-	err = db.CreateModels(dbConn, cfg.DatabaseMode)
+	// (3) Create the database models (or migrate)
+	err = db.CreateModels(dbConn, cfg.DatabaseMode, passwordHash)
 	if err != nil {
 		return nil, zerr.ErrCreateTables
 	}
-
-	// (3) Create password hash
-	passwordHash := hash.NewPasswordHash()
 
 	// (4) Create storage layers
 	userStorage := storage.NewUserStorage(storage.UserStorageParams{
@@ -138,7 +138,7 @@ func (s *ZionServer) Start() {
 
 	// Wait for all background goroutines to finish
 	s.wg.Wait()
-	log.Print("all background operations complete. Server shutdown complete.")
+	log.Print("all background operations complete. server shutdown complete.")
 }
 
 func (s *ZionServer) SetupRouter() {

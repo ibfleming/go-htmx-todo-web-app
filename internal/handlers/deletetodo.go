@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http"
 	"zion/internal/storage"
-	"zion/templates"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -23,21 +22,9 @@ func NewDeleteTodoHandler(params DeleteTodoHandlerParams) *DeleteTodoHandler {
 }
 
 func (h *DeleteTodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	todoId := chi.URLParam(r, "todoId")
-	userId := chi.URLParam(r, "userId")
-
-	err := h.todos.DeleteTodo(todoId)
+	err := h.todos.DeleteTodo(chi.URLParam(r, "todoId"))
 	if err != nil {
-		http.Error(w, "error deleting todo", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	todo, _ := h.todos.GetAllTodos(userId)
-	if len(todo) == 0 {
-		err = templates.EmptyTodoList().Render(r.Context(), w)
-		if err != nil {
-			http.Error(w, "error rendering template", http.StatusInternalServerError)
-			return
-		}
 	}
 }
