@@ -20,61 +20,58 @@ func NewTodoStorage(params TodoStorageParams) *TodoStorage {
 	}
 }
 
-func (s *TodoStorage) CreateTodo(todo *db.Todo) (*db.Todo, error) {
-	result := s.db.Create(todo)
-	if result.Error != nil {
-		return nil, result.Error
+func (h *TodoStorage) CreateTodo(todo db.Todo) (*db.Todo, error) {
+	if err := h.db.Create(&todo).Error; err != nil {
+		return nil, err
 	}
-	return todo, nil
+	return &todo, nil
 }
 
-func (s *TodoStorage) AddTodoItemToTodo(todoID uint, item *db.TodoItem) (*db.TodoItem, error) {
-	// Find the parent TODO by ID
-	var todo db.Todo
-	if err := s.db.First(&todo, todoID).Error; err != nil {
-		return nil, err
-	}
-	// TODO is valid, now add TodoItem to it
-	item.TodoID = todoID
-	todo.Items = append(todo.Items, *item)
-	// Save the TodoItem to the database
-	if err := s.db.Create(item).Error; err != nil {
-		return nil, err
-	}
-	// Save the updated Todo to the database
-	if err := s.db.Save(&todo).Error; err != nil {
-		return nil, err
-	}
-	// Return the created TodoItem
-	return item, nil
+func (h *TodoStorage) AddTodoItemToTodo(todoID uint, item *db.TodoItem) (*db.TodoItem, error) {
+	return nil, nil
 }
 
-func (s *TodoStorage) DeleteTodo(todoID uint) error {
-	var todo db.Todo
-	if err := s.db.First(&todo, todoID).Error; err != nil {
-		return err
-	}
-	if err := s.db.Delete(&todo).Error; err != nil {
+func (h *TodoStorage) DeleteTodo(todoID string, userID uint) error {
+	err := h.db.Where("id = ? AND user_id = ?", todoID, userID).Delete(&db.Todo{}).Error
+	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *TodoStorage) DeleteChecklistItem(todoID, itemID uint) error {
-	var item db.TodoItem
-	if err := s.db.Where("id = ? AND todo_id = ?", itemID, todoID).First(&item).Error; err != nil {
-		return err
-	}
-	if err := s.db.Delete(&item).Error; err != nil {
+func (h *TodoStorage) DeleteAllTodos(userID uint) error {
+	err := h.db.Where("user_id = ?", userID).Delete(&db.Todo{}).Error
+	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *TodoStorage) GetTodos(userID uint) ([]db.Todo, error) {
-	var todos []db.Todo
-	if err := s.db.Where("user_id = ?", userID).Find(&todos).Error; err != nil {
+func (h *TodoStorage) DeleteTodoItem(todoID, itemID uint) error {
+	return nil
+}
+
+func (h *TodoStorage) GetTodosByUserID(userID uint) ([]*db.Todo, error) {
+	var todos []*db.Todo
+	err := h.db.Where("user_id = ?", userID).Find(&todos).Error
+	if err != nil {
 		return nil, err
 	}
 	return todos, nil
+}
+
+func (h *TodoStorage) GetTodoByTodoID(todoID uint) (*db.Todo, error) {
+	return nil, nil
+}
+
+func (h *TodoStorage) UpdateTodo(todoID uint, title, description string) error {
+	return nil
+}
+
+func (h *TodoStorage) UpdateTodoItem(todoID, itemID uint, checked bool, content string) error {
+	return nil
+}
+
+func (h *TodoStorage) ListTodoItems(todoID uint) ([]*db.TodoItem, error) {
+	return nil, nil
 }

@@ -16,7 +16,7 @@
   transition: opacity 200ms ease-in;
 }
 
-.button-13 {
+.zion-button {
   background-color: hsl(120, 100%, 25%);
   box-sizing: border-box;
   cursor: pointer;
@@ -31,13 +31,29 @@
   touch-action: manipulation;
   vertical-align: middle;
   width: fit-content;
+  /* my additions */
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  color: white;
+  border-radius: 0.125rem;
+  font-family: monospace;
 }
 
-.button-13:hover {
+.zion-button.negative {
+  background-color: hsl(0, 74%, 42%);
+}
+
+.zion-button:hover {
   background-color: hsl(120, 100%, 20%);
 }
 
-.button-13:focus {
+.zion-button.negative:hover {
+  background-color: hsl(0, 74%, 37%);
+}
+
+.zion-button:focus {
   border-color: #008296;
   outline: 0;
 }

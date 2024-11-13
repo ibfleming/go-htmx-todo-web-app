@@ -50,5 +50,19 @@ func (s *ZionServer) EstablishRoutes() {
 		r.Post("/logout", handlers.NewPostLogoutHandler(handlers.PostLogoutHandlerParams{
 			SessionCookie: s.sessionCookie,
 		}).ServeHTTP)
+
+		// Todos Handler
+		r.Route("/todos", func(r chi.Router) {
+
+			todoHandler := handlers.NewTodoHandler(handlers.TodoHandlerParams{
+				Users: s.users,
+				Todos: s.todos,
+			})
+
+			r.Get("/", todoHandler.List)
+			r.Post("/", todoHandler.Create)
+			r.Delete("/{id}", todoHandler.Delete)
+			r.Delete("/all", todoHandler.DeleteAll)
+		})
 	})
 }

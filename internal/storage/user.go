@@ -44,3 +44,24 @@ func (s *UserStorage) GetUser(email string) (*db.User, error) {
 	}
 	return &user, nil
 }
+
+func (s *UserStorage) GetUserByID(userID uint) (*db.User, error) {
+	var user db.User
+	err := s.db.Where("id = ?", userID).First(&user).Error
+	if err != nil {
+		return nil, zerr.ErrUserNotFound
+	}
+	return &user, nil
+}
+
+func (s *UserStorage) UpdateUser(userID uint, email, password string) error {
+	return nil
+}
+
+func (s *UserStorage) DeleteUser(userID uint) error {
+	return nil
+}
+
+func (s *UserStorage) UserExists(email string) (bool, error) {
+	return false, nil
+}

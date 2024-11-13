@@ -26,6 +26,7 @@ type ZionServer struct {
 	db            *gorm.DB
 	users         storage.UserStorageInterface
 	sessions      storage.SessionStorageInterface
+	todos         storage.TodoStorageInterface
 	httpServer    *http.Server
 	hash          *hash.PasswordHash
 	sessionCookie string
@@ -38,6 +39,7 @@ func NewZionServer(
 	dbConn *gorm.DB,
 	userStorage storage.UserStorageInterface,
 	sessionStorage storage.SessionStorageInterface,
+	todoStorage storage.TodoStorageInterface,
 	hash *hash.PasswordHash,
 ) *ZionServer {
 	s := &ZionServer{
@@ -45,6 +47,7 @@ func NewZionServer(
 		db:            dbConn,
 		users:         userStorage,
 		sessions:      sessionStorage,
+		todos:         todoStorage,
 		hash:          hash,
 		sessionCookie: cfg.SessionCookieName,
 		httpServer: &http.Server{
@@ -84,6 +87,9 @@ func InitializeZionServer(cfg *config.Config) (*ZionServer, error) {
 	sessionStorage := storage.NewSessionStorage(storage.SessionStorageParams{
 		DB: dbConn,
 	})
+	todoStorage := storage.NewTodoStorage(storage.TodoStorageParams{
+		DB: dbConn,
+	})
 
 	// (5) Create Zion Server
 	server := NewZionServer(
@@ -91,6 +97,7 @@ func InitializeZionServer(cfg *config.Config) (*ZionServer, error) {
 		dbConn,
 		userStorage,
 		sessionStorage,
+		todoStorage,
 		passwordHash,
 	)
 

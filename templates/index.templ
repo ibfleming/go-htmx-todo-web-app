@@ -7,7 +7,7 @@ templ Index(user *db.User) {
 		@Nav(user)
 		if user != nil {
 			<section class="p-2">
-				@AddTodoButton(user)
+				@TodoPage()
 			</section>
 		}
 	}

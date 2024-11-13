@@ -1,0 +1,125 @@
+package templates
+
+import (
+	"fmt"
+	"zion/internal/storage/db"
+)
+
+templ TodoPage() {
+	<div class="w-full flex flex-col justify-center px-8">
+		@CreateTodoForm()
+		<hr class="w-full border-neutral-300"/>
+		<div class="h-full py-4">
+			<div class="px-4">
+				<ul
+					id="todo-list"
+					hx-get="/todos"
+					hx-trigger="load once"
+					hx-swap="innerHTML"
+					class="grid-cols-[repeat(auto-fill,_minmax(256px,_1fr))] w-full grid gap-6"
+				></ul>
+			</div>
+		</div>
+		<hr class="w-full border-neutral-300"/>
+	</div>
+	<script>
+    document.addEventListener("removeEmptyMessage", () => {
+        const emptyMsg = document.getElementById("empty-todo-msg");
+        if (emptyMsg) {
+            emptyMsg.remove();
+        }
+    });
+	</script>
+}
+
+templ TodoList(todos []*db.Todo) {
+	for _, todo := range todos {
+		@SingleTodo(todo)
+	}
+}
+
+templ EmptyTodoList() {
+	<li id="empty-todo-msg" class="font-mono text-sm text-red-700">no todos found</li>
+}
+
+templ SingleTodo(todo *db.Todo) {
+	<li
+		id={ "todo-" + fmt.Sprint(todo.ID) }
+		class="p-2 font-mono bg-gray-50 rounded-sm border border-neutral-500 shadow-sm"
+	>
+		<div class="flex pb-1">
+			<div class="w-2/3 flex flex-col justify-start">
+				<h1 class="text-sm truncate">{ todo.Title }</h1>
+				<h2 class="text-xs text-neutral-500 truncate">{ todo.Description }</h2>
+			</div>
+			<div class="w-1/3 flex justify-end items-start">
+				<button
+					aria-label="Delete Todo"
+					hx-delete={ "/todos/" + fmt.Sprint(todo.ID) }
+					hx-target={ "#todo-" + fmt.Sprint(todo.ID) }
+					hx-swap="outerHTML"
+					hx-trigger="click"
+					class="negative zion-button"
+				>
+					delete
+				</button>
+			</div>
+		</div>
+		<hr class="w-full border-neutral-300"/>
+	</li>
+}
+
+templ CreateTodoForm() {
+	<div
+		id="create-todo-form"
+		hx-ext="response-targets"
+		class="flex justify-between px-4 pb-3"
+	>
+		<div class="flex flex-col gap-1">
+			<label for="create-todo-form" class="font-mono text-sm font-semibold text-neutral-800">create todo</label>
+			<form
+				hx-post="/todos"
+				hx-trigger="submit"
+				hx-target="#todo-list"
+				hx-swap="beforeend"
+				class="max-w-96 flex gap-2"
+			>
+				<input
+					type="text"
+					name="title"
+					value="Test Todo"
+					placeholder="title"
+					class="form-input w-full p-0.5 px-2 font-mono text-xs rounded-sm border border-neutral-300"
+					required
+				/>
+				<input
+					type="text"
+					name="description"
+					value="Test description."
+					placeholder="description"
+					class="form-input w-full p-0.5 px-2 font-mono text-xs rounded-sm border border-neutral-300"
+				/>
+				<button
+					aria-label="Create Todo"
+					type="submit"
+					class="zion-button"
+				>
+					create
+				</button>
+			</form>
+		</div>
+		<div class="flex justify-end items-end">
+			<button
+				aria-label="Delete Todo"
+				hx-delete="/todos/all"
+				hx-target="#todo-list"
+				hx-swap="innerHTML"
+				hx-trigger="click"
+				hx-confirm="Are you sure you want to delete all todos?"
+				class="negative zion-button"
+			>
+				delete all
+			</button>
+		</div>
+	</div>
+}
