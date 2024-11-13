@@ -9,13 +9,11 @@ templ TodoList(todos []db.Todo) {
 	<div class="flex flex-col gap-2">
 		<h1 class="text-sm font-semibold text-neutral-800">todos</h1>
 		<ul
-			id="todos"
+			id="todo_list"
 			class="grid-cols-[repeat(auto-fill,_minmax(256px,256px))] grid items-start gap-4"
 		>
 			if len(todos) == 0 {
-				<li class="text-xs text-red-800">
-					No todos available.
-				</li>
+				@EmptyTodoList()
 			} else {
 				for _, todo := range todos {
 					@SingleTodo(todo)
@@ -23,6 +21,18 @@ templ TodoList(todos []db.Todo) {
 			}
 		</ul>
 	</div>
+}
+
+templ EmptyTodoList() {
+	<li id="empty_todos_msg" class="text-xs text-red-800">
+		no todos added
+	</li>
+}
+
+templ EmptyTodoItemList() {
+	<li class="text-xs text-red-800">
+		no items added
+	</li>
 }
 
 templ SingleTodo(todo db.Todo) {
@@ -47,9 +57,7 @@ templ SingleTodo(todo db.Todo) {
 			class="flex flex-col gap-2"
 		>
 			if len(todo.Items) == 0 {
-				<li class="text-xs text-red-800">
-					No todos available.
-				</li>
+				@EmptyTodoItemList()
 			} else {
 				for _, item := range todo.Items {
 					@SingleTodoItem(item)
@@ -113,9 +121,10 @@ templ SingleTodoItem(item db.TodoItem) {
 templ AddTodoItem(todo db.Todo) {
 	<button
 		hx-post={ "/todo/" + fmt.Sprintf("%d", todo.ID) + "/item/create" }
-		hx-target={ "#todo_items_" + fmt.Sprintf("%d", todo.ID) + " li:last-child" }
-		hx-swap="afterend"
+		hx-target={ "#todo_items_" + fmt.Sprintf("%d", todo.ID) }
+		hx-swap="beforeend"
 		aria-label="Add Todo Item"
+		onclick="removeEmptyTodoItemListMsg()"
 		class="flex justify-start items-center gap-2 focus:outline-none"
 	>
 		<svg class="min-w-5 w-5 h-5 text-white bg-green-700 rounded shadow-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -230,10 +239,4 @@ templ DeleteTodoItem(item db.TodoItem, targetId string) {
 		</svg>
 		<span class="sr-only">Delete Todo Item</span>
 	</button>
-}
-
-templ EmptyTodoItems() {
-	<li class="text-xs text-red-800">
-		No todos available.
-	</li>
 }

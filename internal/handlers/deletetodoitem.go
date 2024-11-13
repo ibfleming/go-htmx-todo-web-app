@@ -36,7 +36,7 @@ func (h *DeleteTodoItemHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	}
 
 	if empty {
-		err = templates.EmptyTodoItems().Render(r.Context(), w)
+		err = templates.EmptyTodoItemList().Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, "error rendering template", http.StatusInternalServerError)
 			return

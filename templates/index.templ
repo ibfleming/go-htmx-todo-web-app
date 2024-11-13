@@ -20,13 +20,15 @@ templ Index(user *db.User, todos []db.Todo) {
 	}
 }
 
+var removeEmptyTodoListMsg = templ.NewOnceHandle()
+
 templ CreateTodoForm() {
 	<div class="w-full h-full px-8">
 		<form
 			hx-post="/todo/create"
 			hx-trigger="submit"
-			hx-target="#todos li:last-child"
-			hx-swap="afterend"
+			hx-target="#todo_list"
+			hx-swap="beforeend"
 			class="min-w-[192px] w-[192px] flex flex-col items-start gap-2 font-mono"
 		>
 			<div class="w-full flex flex-col items-start gap-2">
@@ -49,7 +51,12 @@ templ CreateTodoForm() {
 					class="form-input w-full p-0.5 px-2 text-xs rounded-sm border border-neutral-800"
 				/>
 			</div>
-			<button type="submit" aria-label="Add Todo" class="w-6 h-6 bg-green-700 rounded shadow-sm focus:outline-none">
+			<button
+				type="submit"
+				aria-label="Add Todo"
+				onclick="removeEmptyTodoListMsg()"
+				class="w-6 h-6 bg-green-700 rounded shadow-sm focus:outline-none"
+			>
 				<svg class="text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
 					<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -67,4 +74,14 @@ templ CreateTodoForm() {
 			</button>
 		</form>
 	</div>
+	@removeEmptyTodoListMsg.Once() {
+		<script type="text/javascript">
+   		function removeEmptyTodoListMsg() {
+        		const errMsg = document.getElementById("empty_todos_msg");
+        		if (errMsg !== null) {
+            	errMsg.remove();
+        		}
+    		}
+		</script>
+	}
 }

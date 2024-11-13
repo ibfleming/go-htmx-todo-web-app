@@ -30,4 +30,5 @@ func (h *PostTodoItemHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 			5. return the html li element
 	*/
 	log.Printf("PostTodoItemHandler: %v", r.URL.Path)
+	w.Write([]byte("<li>PostTodoItemHandler<li>"))
 }
