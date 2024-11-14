@@ -3,85 +3,90 @@ package db
 import (
 	"log"
 	zerr "zion/internal/errors"
+	"zion/internal/storage"
+	s "zion/internal/storage/schema"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-type Session struct {
-	gorm.Model
-	SessionID string `gorm:"unique"`
-	UserID    uint
-	User      User `gorm:"foreignKey:UserID"`
+type CreateModelsParams struct {
+	DB    *gorm.DB
+	Users storage.UserStorageInterface
+	Todos storage.TodoStorageInterface
+	Mode  string
 }
 
-type User struct {
-	gorm.Model
-	Email    string `gorm:"uniqueIndex;not null"`
-	Password string `gorm:"not null"`
-	Todos    []Todo `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
-}
-
-type Todo struct {
-	gorm.Model
-	UserID      uint       `gorm:"not null;index"`
-	Title       string     `gorm:"not null;size:255"`
-	Description string     `gorm:"default:null;size:255"`
-	Items       []TodoItem `gorm:"foreignKey:TodoID;constraint:OnDelete:CASCADE;"`
-}
-
-type TodoItem struct {
-	gorm.Model
-	TodoID  uint   `gorm:"not null;index"`
-	Content string `gorm:"not null;size:500"`
-	Checked bool   `gorm:"default:false;index"`
-}
-
-type UserStorage interface {
-	CreateUser(email, password string) error
-	GetUser(email string) (*User, error)
-}
-
-type SessionStorage interface {
-	CreateSession(sessionID string, userID uint) error
-	GetUserFromSession(sessionID, userId string) (*User, error)
-}
-
-var models = []interface{}{&User{}, &Session{}, &Todo{}}
+var Models = []interface{}{&s.User{}, &s.Session{}, &s.Todo{}, &s.TodoItem{}}
 
 func Connect(url string) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(url), &gorm.Config{})
 	return db, err
 }
 
-func CreateModels(db *gorm.DB, mode string) error {
-	switch mode {
+func CreateModels(p CreateModelsParams) error {
+	switch p.Mode {
 	case "clear":
 		{
-			log.Println("🔨 Clearing the store...")
-			err := db.Migrator().DropTable(models...)
+			log.Println("clearing the store...")
+			err := p.DB.Migrator().DropTable(Models...)
 			if err != nil {
 				return zerr.ErrDropTables
 			}
-			return migrate(db)
+			return migrate(p.DB)
 		}
 	case "seed":
 		{
-			log.Println("🔨 Seeding the store...")
-			return migrate(db)
+			log.Println("clearing the database...")
+			err := p.DB.Migrator().DropTable(Models...)
+			if err != nil {
+				return zerr.ErrDropTables
+			}
+			log.Println("seeding the database...")
+
+			err = migrate(p.DB)
+
+			p.Users.CreateUser("admin@localhost", "2211")
+
+			admin, _ := p.Users.GetUser("admin@localhost")
+
+			p.Todos.CreateTodo(s.Todo{
+				UserID:      admin.ID,
+				Title:       "Mock todo",
+				Description: "This is a mock todo",
+				Items: []s.TodoItem{
+					{
+						Content: "Mock todo item",
+						Checked: false,
+					},
+					{
+						Content: "Mock todo item",
+						Checked: true,
+					},
+				},
+			})
+
+			p.Todos.CreateTodo(s.Todo{
+				UserID:      admin.ID,
+				Title:       "Another mock todo",
+				Description: "This is another mock todo",
+				Items:       []s.TodoItem{},
+			})
+
+			return err
 		}
 	default:
 		{
-			return migrate(db)
+			return migrate(p.DB)
 		}
 	}
 }
 
 func migrate(db *gorm.DB) error {
-	log.Println("Migrating models into database...")
-	log.Println("Models:")
-	for _, model := range models {
-		log.Printf("\tModel: %T", model)
+	log.Println("adding models to database...")
+	log.Println("models:")
+	for _, model := range Models {
+		log.Printf("\t%T", model)
 	}
-	return db.AutoMigrate(models...)
+	return db.AutoMigrate(Models...)
 }

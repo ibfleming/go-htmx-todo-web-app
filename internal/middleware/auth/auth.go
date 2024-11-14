@@ -8,7 +8,7 @@ import (
 	"strings"
 	zerr "zion/internal/errors"
 	"zion/internal/storage"
-	"zion/internal/storage/db"
+	"zion/internal/storage/schema"
 )
 
 type AuthMiddleware struct {
@@ -66,12 +66,12 @@ func (m *AuthMiddleware) AddUserToContext(h http.Handler) http.Handler {
 	})
 }
 
-func GetUser(ctx context.Context) *db.User {
+func GetUser(ctx context.Context) *schema.User {
 	user := ctx.Value(UserKey)
 	if user == nil {
 		return nil
 	}
-	return user.(*db.User)
+	return user.(*schema.User)
 }
 
 func IsLoggedIn(r *http.Request) bool {

@@ -3,7 +3,7 @@ package storage
 import (
 	zerr "zion/internal/errors"
 	"zion/internal/hash"
-	"zion/internal/storage/db"
+	schema "zion/internal/storage/schema"
 
 	"gorm.io/gorm"
 )
@@ -30,14 +30,14 @@ func (s *UserStorage) CreateUser(email, password string) error {
 	if err != nil {
 		return zerr.ErrHashPasswordFailed
 	}
-	return s.db.Create(&db.User{
+	return s.db.Create(&schema.User{
 		Email:    email,
 		Password: hashedPassword,
 	}).Error
 }
 
-func (s *UserStorage) GetUser(email string) (*db.User, error) {
-	var user db.User
+func (s *UserStorage) GetUser(email string) (*schema.User, error) {
+	var user schema.User
 	err := s.db.Where("email = ?", email).First(&user).Error
 	if err != nil {
 		return nil, zerr.ErrUserNotFound
@@ -45,8 +45,8 @@ func (s *UserStorage) GetUser(email string) (*db.User, error) {
 	return &user, nil
 }
 
-func (s *UserStorage) GetUserByID(userID uint) (*db.User, error) {
-	var user db.User
+func (s *UserStorage) GetUserByID(userID uint) (*schema.User, error) {
+	var user schema.User
 	err := s.db.Where("id = ?", userID).First(&user).Error
 	if err != nil {
 		return nil, zerr.ErrUserNotFound

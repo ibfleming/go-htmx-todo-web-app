@@ -64,22 +64,17 @@ func NewZionServer(
 }
 
 func InitializeZionServer(cfg *config.Config) (*ZionServer, error) {
-	// (1) Connect to the database
+
+	// (1) Create password hash
+	passwordHash := hash.NewPasswordHash()
+
+	// (2) Connect to the database
 	dbConn, err := db.Connect(cfg.DatabaseURL)
 	if err != nil {
 		return nil, zerr.ErrFailedToConnectToDB
 	}
 
-	// (2) Create the database models (or migrate)
-	err = db.CreateModels(dbConn, cfg.DatabaseMode)
-	if err != nil {
-		return nil, zerr.ErrCreateTables
-	}
-
-	// (3) Create password hash
-	passwordHash := hash.NewPasswordHash()
-
-	// (4) Create storage layers
+	// (3) Create storage layers
 	userStorage := storage.NewUserStorage(storage.UserStorageParams{
 		DB:           dbConn,
 		PasswordHash: passwordHash,
@@ -90,6 +85,17 @@ func InitializeZionServer(cfg *config.Config) (*ZionServer, error) {
 	todoStorage := storage.NewTodoStorage(storage.TodoStorageParams{
 		DB: dbConn,
 	})
+
+	// (4) Create the database models (or migrate)
+	err = db.CreateModels(db.CreateModelsParams{
+		DB:    dbConn,
+		Todos: todoStorage,
+		Users: userStorage,
+		Mode:  cfg.DatabaseMode,
+	})
+	if err != nil {
+		return nil, zerr.ErrCreateTables
+	}
 
 	// (5) Create Zion Server
 	server := NewZionServer(

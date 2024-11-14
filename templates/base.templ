@@ -1,6 +1,6 @@
 package templates
 
-import "zion/internal/storage/db"
+import "zion/internal/storage/schema"
 
 templ Head(title string) {
 	<head>
@@ -25,7 +25,7 @@ templ Base(title string) {
 	</html>
 }
 
-templ Nav(user *db.User) {
+templ Nav(user *schema.User) {
 	{{ isLoggedIn := user != nil }}
 	<nav
 		class={ "flex items-center gap-2 p-2 font-mono text-xs w-full bg-neutral-800 text-white", 

@@ -8,7 +8,7 @@ import (
 	"zion/internal/errors"
 	"zion/internal/hash"
 	"zion/internal/storage"
-	"zion/internal/storage/db"
+	"zion/internal/storage/schema"
 	"zion/templates"
 )
 
@@ -65,7 +65,7 @@ func (h *PostLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Create the session since the user is valid
-	session, err := h.sessions.CreateSession(&db.Session{
+	session, err := h.sessions.CreateSession(&schema.Session{
 		UserID: user.ID,
 	})
 	// Error handling

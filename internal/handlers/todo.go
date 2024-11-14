@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"zion/internal/middleware/auth"
 	"zion/internal/storage"
-	"zion/internal/storage/db"
+	"zion/internal/storage/schema"
 	"zion/templates"
 
 	"github.com/go-chi/chi/v5"
@@ -53,7 +53,7 @@ func (h *TodoHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 4. Create todo
-	todo, err := h.todos.CreateTodo(db.Todo{
+	todo, err := h.todos.CreateTodo(schema.Todo{
 		UserID:      user.ID,
 		Title:       title,
 		Description: desc,

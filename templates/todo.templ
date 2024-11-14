@@ -2,7 +2,7 @@ package templates
 
 import (
 	"fmt"
-	"zion/internal/storage/db"
+	"zion/internal/storage/schema"
 )
 
 templ TodoPage() {
@@ -32,17 +32,19 @@ templ TodoPage() {
 	</script>
 }
 
-templ TodoList(todos []*db.Todo) {
+templ TodoList(todos []*schema.Todo) {
 	for _, todo := range todos {
 		@SingleTodo(todo)
 	}
 }
 
 templ EmptyTodoList() {
-	<li id="empty-todo-msg" class="font-mono text-sm text-red-700">no todos found</li>
+	<li id="empty-todo-msg" class="font-mono text-sm text-red-700">
+		no todos found
+	</li>
 }
 
-templ SingleTodo(todo *db.Todo) {
+templ SingleTodo(todo *schema.Todo) {
 	<li
 		id={ "todo-" + fmt.Sprint(todo.ID) }
 		class="p-2 font-mono bg-gray-50 rounded-sm border border-neutral-500 shadow-sm"
@@ -66,6 +68,40 @@ templ SingleTodo(todo *db.Todo) {
 			</div>
 		</div>
 		<hr class="w-full border-neutral-300"/>
+		<ul
+			id={ "todo-item-list-" + fmt.Sprint(todo.ID) }
+			class="flex flex-col gap-2 pt-1"
+		>
+			@TodoItemList(todo.Items)
+		</ul>
+	</li>
+}
+
+templ TodoItemList(items []schema.TodoItem) {
+	if len(items) == 0 {
+		@EmptyTodoItemList()
+	} else {
+		for i, item := range items {
+			@SingleTodoItem(i, item)
+		}
+	}
+}
+
+templ EmptyTodoItemList() {
+	<li id="empty-todo-item-msg" class="font-mono text-xs text-red-700">
+		no items found
+	</li>
+}
+
+templ SingleTodoItem(index int, item schema.TodoItem) {
+	<li
+		id={ "item-" + fmt.Sprint(item.ID) }
+		class="font-mono text-xs"
+	>
+		<div class="flex gap-1">
+			<span class="text-neutral-500">{ fmt.Sprint(index + 1) + "." }</span>
+			<h1>{ item.Content }</h1>
+		</div>
 	</li>
 }
 
@@ -73,16 +109,16 @@ templ CreateTodoForm() {
 	<div
 		id="create-todo-form"
 		hx-ext="response-targets"
-		class="flex justify-between px-4 pb-3"
+		class="flex justify-between gap-2 px-4 pb-3"
 	>
-		<div class="flex flex-col gap-1">
+		<div class="flex-grow max-w-[32rem] min-w-24 flex flex-col gap-1">
 			<label for="create-todo-form" class="font-mono text-sm font-semibold text-neutral-800">create todo</label>
 			<form
 				hx-post="/todos"
 				hx-trigger="submit"
 				hx-target="#todo-list"
 				hx-swap="beforeend"
-				class="max-w-96 flex gap-2"
+				class="flex items-center gap-2"
 			>
 				<input
 					type="text"
@@ -108,7 +144,7 @@ templ CreateTodoForm() {
 				</button>
 			</form>
 		</div>
-		<div class="flex justify-end items-end">
+		<div class="mb-[1px] flex items-end">
 			<button
 				aria-label="Delete Todo"
 				hx-delete="/todos/all"
@@ -116,7 +152,7 @@ templ CreateTodoForm() {
 				hx-swap="innerHTML"
 				hx-trigger="click"
 				hx-confirm="Are you sure you want to delete all todos?"
-				class="negative zion-button"
+				class="negative zion-button flex-nowrap text-nowrap"
 			>
 				delete all
 			</button>

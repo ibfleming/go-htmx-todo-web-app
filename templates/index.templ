@@ -1,8 +1,8 @@
 package templates
 
-import "zion/internal/storage/db"
+import "zion/internal/storage/schema"
 
-templ Index(user *db.User) {
+templ Index(user *schema.User) {
 	@Base("Home") {
 		@Nav(user)
 		if user != nil {

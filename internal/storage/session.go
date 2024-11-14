@@ -2,7 +2,7 @@ package storage
 
 import (
 	zerr "zion/internal/errors"
-	"zion/internal/storage/db"
+	schema "zion/internal/storage/schema"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -22,7 +22,7 @@ func NewSessionStorage(params SessionStorageParams) *SessionStorage {
 	}
 }
 
-func (s *SessionStorage) CreateSession(session *db.Session) (*db.Session, error) {
+func (s *SessionStorage) CreateSession(session *schema.Session) (*schema.Session, error) {
 	session.SessionID = uuid.New().String()
 	result := s.db.Create(session)
 	if result.Error != nil {
@@ -31,8 +31,8 @@ func (s *SessionStorage) CreateSession(session *db.Session) (*db.Session, error)
 	return session, nil
 }
 
-func (s *SessionStorage) GetUserFromSession(sessionID, userID string) (*db.User, error) {
-	var session db.Session
+func (s *SessionStorage) GetUserFromSession(sessionID, userID string) (*schema.User, error) {
+	var session schema.Session
 	err := s.db.Preload("User", func(db *gorm.DB) *gorm.DB {
 		return db.Select("ID", "Email")
 	}).Where("session_id = ? AND user_id = ?", sessionID, userID).First(&session).Error
@@ -46,5 +46,5 @@ func (s *SessionStorage) GetUserFromSession(sessionID, userID string) (*db.User,
 }
 
 func (s *SessionStorage) DeleteSession(sessionID string) error {
-	return s.db.Where("session_id = ?", sessionID).Delete(&db.Session{}).Error
+	return s.db.Where("session_id = ?", sessionID).Delete(&schema.Session{}).Error
 }
