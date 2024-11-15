@@ -155,3 +155,36 @@ func (h *TodoHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *TodoHandler) EditItem(w http.ResponseWriter, r *http.Request) {
+	// 1. Get parameters
+	id := chi.URLParam(r, "id")
+
+	item, err := h.todos.GetTodoItemByID(id)
+	if err != nil {
+		http.Error(w, "failed to get todo item", http.StatusInternalServerError)
+		return
+	}
+
+	err = templates.EditTodoItem(item).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "failed to render template", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *TodoHandler) UpdateItemContent(w http.ResponseWriter, r *http.Request) {
+	// 1. Get parameters
+	id := chi.URLParam(r, "id")
+	content := r.FormValue("content")
+
+	// 2. Update todo item content
+	err := h.todos.UpdateTodoItemContent(id, content)
+	if err != nil {
+		http.Error(w, "failed to update todo item", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *TodoHandler) ToggleItemCheck(w http.ResponseWriter, r *http.Request) {
+}

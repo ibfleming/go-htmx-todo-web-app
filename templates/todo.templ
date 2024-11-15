@@ -98,11 +98,43 @@ templ SingleTodoItem(index int, item schema.TodoItem) {
 		id={ "item-" + fmt.Sprint(item.ID) }
 		class="font-mono text-xs"
 	>
-		<div class="flex gap-1">
-			<span class="text-neutral-500">{ fmt.Sprint(index + 1) + "." }</span>
-			<h1>{ item.Content }</h1>
+		<div class="flex justify-between items-center gap-2">
+			<div class="flex-grow flex justify-start items-center gap-2">
+				<h1 class="text-neutral-500">{ fmt.Sprint(index + 1) + "." }</h1>
+				<div
+					hx-get={ "/todos/item/edit/" + fmt.Sprint(item.ID) }
+					hx-trigger="click"
+					hx-target="this"
+					hx-swap="outerHTML"
+					title="click to edit"
+					class="w-full truncate cursor-pointer"
+				>
+					{ item.Content }
+				</div>
+			</div>
+			<input
+				type="checkbox"
+				name="checked"
+				class="form-checkbox cursor-pointer"
+				hx-post="/todos/item/toggle"
+				if item.Checked {
+					checked
+				}
+			/>
 		</div>
 	</li>
+}
+
+templ EditTodoItem(item *schema.TodoItem) {
+	<form>
+		<input
+			type="text"
+			name="content"
+			value={ item.Content }
+			class="form-input w-full p-0.5 px-2 font-mono text-xs rounded-sm border border-neutral-300"
+			autofocus
+		/>
+	</form>
 }
 
 templ CreateTodoForm() {

@@ -63,6 +63,9 @@ func (s *ZionServer) EstablishRoutes() {
 			r.Post("/", todoHandler.Create)
 			r.Delete("/{id}", todoHandler.Delete)
 			r.Delete("/all", todoHandler.DeleteAll)
+			r.Get("/item/edit/{id}", todoHandler.EditItem)
+			r.Post("/item/edit/content/{id}", todoHandler.UpdateItemContent)
+			r.Post("/item/toggle", todoHandler.ToggleItemCheck)
 		})
 	})
 }
