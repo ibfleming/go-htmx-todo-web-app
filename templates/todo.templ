@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"sort"
 	"zion/internal/storage/schema"
 )
 
@@ -16,7 +17,7 @@ templ TodoPage() {
 					hx-get="/todos"
 					hx-trigger="load once"
 					hx-swap="innerHTML"
-					class="grid-cols-[repeat(auto-fill,_minmax(256px,_1fr))] w-full grid gap-6"
+					class="auto-rows-[min-content] grid-cols-[repeat(auto-fill,_minmax(256px,_1fr))] w-full grid items-start gap-6"
 				></ul>
 			</div>
 		</div>
@@ -49,7 +50,7 @@ templ SingleTodo(todo *schema.Todo) {
 		id={ "todo-" + fmt.Sprint(todo.ID) }
 		class="p-2 font-mono bg-gray-50 rounded-sm border border-neutral-500 shadow-sm"
 	>
-		<div class="flex pb-1">
+		<div class="flex pb-2">
 			<div class="w-2/3 flex flex-col justify-start">
 				<h1 class="text-sm truncate">{ todo.Title }</h1>
 				<h2 class="text-xs text-neutral-500 truncate">{ todo.Description }</h2>
@@ -70,10 +71,15 @@ templ SingleTodo(todo *schema.Todo) {
 		<hr class="w-full border-neutral-300"/>
 		<ul
 			id={ "todo-item-list-" + fmt.Sprint(todo.ID) }
-			class="flex flex-col gap-2 pt-1"
+			class="flex flex-col gap-2 py-1.5"
 		>
 			@TodoItemList(todo.Items)
 		</ul>
+		<hr class="w-full border-neutral-300"/>
+		<div class="flex justify-between items-center pt-2">
+			@CreateTodoItem()
+			<p class="font-mono text-xs text-neutral-500">{ todo.CreatedAt.Format("01/02/2006") }</p>
+		</div>
 	</li>
 }
 
@@ -81,6 +87,14 @@ templ TodoItemList(items []schema.TodoItem) {
 	if len(items) == 0 {
 		@EmptyTodoItemList()
 	} else {
+		{{
+			sort.Slice(items, func(i, j int) bool {
+				if items[i].CreatedAt.Equal(items[j].CreatedAt) {
+					return items[i].ID < items[j].ID
+				}
+				return items[i].CreatedAt.Before(items[j].CreatedAt)
+			})
+		}}
 		for i, item := range items {
 			@SingleTodoItem(i, item)
 		}
@@ -102,12 +116,13 @@ templ SingleTodoItem(index int, item schema.TodoItem) {
 			<div class="flex-grow flex justify-start items-center gap-2">
 				<h1 class="text-neutral-500">{ fmt.Sprint(index + 1) + "." }</h1>
 				<div
+					id={ "item-content-" + fmt.Sprint(item.ID) }
 					hx-get={ "/todos/item/edit/" + fmt.Sprint(item.ID) }
 					hx-trigger="click"
 					hx-target="this"
 					hx-swap="outerHTML"
 					title="click to edit"
-					class="w-full truncate cursor-pointer"
+					class="w-full truncate cursor-text"
 				>
 					{ item.Content }
 				</div>
@@ -116,25 +131,46 @@ templ SingleTodoItem(index int, item schema.TodoItem) {
 				type="checkbox"
 				name="checked"
 				class="form-checkbox cursor-pointer"
-				hx-post="/todos/item/toggle"
-				if item.Checked {
-					checked
-				}
+				hx-post={ "/todos/item/toggle/" + fmt.Sprint(item.ID) }
+				hx-trigger="click"
+				title="click to mark as done"
+				checked?={ item.Checked }
 			/>
 		</div>
 	</li>
 }
 
 templ EditTodoItem(item *schema.TodoItem) {
-	<form>
-		<input
-			type="text"
-			name="content"
-			value={ item.Content }
-			class="form-input w-full p-0.5 px-2 font-mono text-xs rounded-sm border border-neutral-300"
-			autofocus
-		/>
-	</form>
+	<input
+		id={ "check-box-" + fmt.Sprint(item.ID) }
+		type="text"
+		name="content"
+		value={ item.Content }
+		class="form-input w-full p-0.5 px-2 font-mono text-xs rounded-sm border border-neutral-300"
+		autofocus
+		hx-post={ "/todos/item/edit/content/" + fmt.Sprint(item.ID) }
+		hx-trigger="blur, keyup changed delay:1000ms"
+		hx-target="this"
+		hx-swap="outerHTML"
+	/>
+}
+
+templ ContentItem(item *schema.TodoItem) {
+	<div
+		id={ "item-content-" + fmt.Sprint(item.ID) }
+		hx-get={ "/todos/item/edit/" + fmt.Sprint(item.ID) }
+		hx-trigger="click"
+		hx-target="this"
+		hx-swap="outerHTML"
+		title="click to edit"
+		class="w-full truncate cursor-text"
+	>
+		{ item.Content }
+	</div>
+}
+
+templ CreateTodoItem() {
+	<button class="zion-button">new item</button>
 }
 
 templ CreateTodoForm() {

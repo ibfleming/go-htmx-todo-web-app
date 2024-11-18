@@ -179,12 +179,39 @@ func (h *TodoHandler) UpdateItemContent(w http.ResponseWriter, r *http.Request) 
 	content := r.FormValue("content")
 
 	// 2. Update todo item content
-	err := h.todos.UpdateTodoItemContent(id, content)
+	item, err := h.todos.UpdateTodoItemContent(id, content)
 	if err != nil {
 		http.Error(w, "failed to update todo item", http.StatusInternalServerError)
+		return
+	}
+
+	// 3. Render template
+	err = templates.ContentItem(item).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "failed to render template", http.StatusInternalServerError)
 		return
 	}
 }
 
 func (h *TodoHandler) ToggleItemCheck(w http.ResponseWriter, r *http.Request) {
+	var checked bool
+
+	// 1. Get parameters
+	id := chi.URLParam(r, "id")
+	r.ParseForm()
+
+	if r.FormValue("checked") == "on" {
+		checked = true
+	} else {
+		checked = false
+	}
+
+	// 2. Update todo item checked
+	err := h.todos.UpdateTodoItemChecked(id, checked)
+	if err != nil {
+		http.Error(w, "failed to update todo item", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("itemID: %s, content: %t", id, checked)
 }

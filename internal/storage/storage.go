@@ -29,7 +29,7 @@ type TodoStorageInterface interface {
 	GetTodoByTodoID(todoID uint) (*schema.Todo, error)
 	GetTodoItemByID(itemID string) (*schema.TodoItem, error)
 	UpdateTodo(todoID uint, title, description string) error
-	UpdateTodoItemContent(itemID string, content string) error
+	UpdateTodoItemContent(itemID string, content string) (*schema.TodoItem, error)
 	UpdateTodoItemChecked(itemID string, checked bool) error
 	ListTodoItems(todoID uint) ([]*schema.TodoItem, error)
 }

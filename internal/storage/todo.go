@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"log"
 	schema "zion/internal/storage/schema"
 
 	"gorm.io/gorm"
@@ -78,13 +77,29 @@ func (h *TodoStorage) UpdateTodo(todoID uint, title, description string) error {
 	return nil
 }
 
-func (h *TodoStorage) UpdateTodoItemContent(itemID string, content string) error {
-	log.Printf("itemID: %s, content: %s", itemID, content)
-	return nil
+func (h *TodoStorage) UpdateTodoItemContent(itemID string, content string) (*schema.TodoItem, error) {
+	item, err := h.GetTodoItemByID(itemID)
+	if err != nil {
+		return nil, err
+	}
+	item.Content = content
+	err = h.db.Save(&item).Error
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
 }
 
 func (h *TodoStorage) UpdateTodoItemChecked(itemID string, checked bool) error {
-	log.Printf("itemID: %s, checked: %t", itemID, checked)
+	item, err := h.GetTodoItemByID(itemID)
+	if err != nil {
+		return err
+	}
+	item.Checked = checked
+	err = h.db.Save(&item).Error
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
