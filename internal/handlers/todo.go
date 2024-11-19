@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"zion/internal/middleware/auth"
 	"zion/internal/storage"
 	"zion/internal/storage/schema"
@@ -45,27 +46,20 @@ func (h *TodoHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 3. Check if no todos found prior to adding this so we can remove empty message
-	todos, _ := h.todos.GetTodosByUserID(user.ID)
-	if len(todos) == 0 {
-		log.Print("No todos found")
-		w.Header().Set("HX-Trigger", "removeEmptyMessage")
-	}
-
-	// 4. Create todo
+	// 3. Create todo
 	todo, err := h.todos.CreateTodo(schema.Todo{
 		UserID:      user.ID,
 		Title:       title,
 		Description: desc,
 	})
 
-	// 5. Check if no issue with creating todo
+	// 4. Check if no issue with creating todo
 	if err != nil {
 		http.Error(w, "failed to create todo", http.StatusInternalServerError)
 		return
 	}
 
-	// 6. Render template
+	// 5. Render template
 	err = templates.SingleTodo(todo).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "failed to render template", http.StatusInternalServerError)
@@ -186,7 +180,7 @@ func (h *TodoHandler) UpdateItemContent(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// 3. Render template
-	err = templates.ContentItem(item).Render(r.Context(), w)
+	err = templates.OriginalTodoItem(item).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "failed to render template", http.StatusInternalServerError)
 		return
@@ -214,4 +208,63 @@ func (h *TodoHandler) ToggleItemCheck(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("itemID: %s, content: %t", id, checked)
+}
+
+func (h *TodoHandler) AddItem(w http.ResponseWriter, r *http.Request) {
+
+	id := chi.URLParam(r, "id")
+	idUint, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	item, err := h.todos.AddTodoItemToTodo(&schema.TodoItem{
+		TodoID:  uint(idUint),
+		Content: "",
+		Checked: false,
+	})
+
+	if err != nil {
+		http.Error(w, "failed to add item", http.StatusInternalServerError)
+		return
+	}
+
+	err = templates.SingleTodoItem(*item).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "failed to render template", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *TodoHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
+	todoId := chi.URLParam(r, "todoId")
+	itemId := chi.URLParam(r, "itemId")
+
+	err := h.todos.DeleteTodoItemByID(itemId)
+	if err != nil {
+		http.Error(w, "failed to delete todo item", http.StatusInternalServerError)
+		return
+	}
+
+	todoIdUint, err := strconv.ParseUint(todoId, 10, 32)
+	if err != nil {
+		http.Error(w, "invalid todoId", http.StatusBadRequest)
+		return
+	}
+
+	length, err := h.todos.GetTodoItemLenthByID(uint(todoIdUint))
+	if err != nil {
+		http.Error(w, "failed to get todo length", http.StatusInternalServerError)
+		return
+	}
+
+	if length == 0 {
+		err = templates.EmptyTodoItemList(todoId).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, "failed to render template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 }

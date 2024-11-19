@@ -7,30 +7,20 @@ import (
 )
 
 templ TodoPage() {
-	<div class="w-full flex flex-col justify-center px-8">
+	<div class="flex flex-col justify-center px-8">
 		@CreateTodoForm()
 		<hr class="w-full border-neutral-300"/>
-		<div class="h-full py-4">
-			<div class="px-4">
-				<ul
-					id="todo-list"
-					hx-get="/todos"
-					hx-trigger="load once"
-					hx-swap="innerHTML"
-					class="auto-rows-[min-content] grid-cols-[repeat(auto-fill,_minmax(256px,_1fr))] w-full grid items-start gap-6"
-				></ul>
-			</div>
+		<div class="px-4 py-4">
+			<ul
+				id="todo-list"
+				hx-get="/todos"
+				hx-trigger="load once"
+				hx-swap="innerHTML"
+				class="auto-rows-[min-content] grid-cols-[repeat(auto-fill,_minmax(320px,_1fr))] w-full h-full grid items-start gap-6"
+			></ul>
 		</div>
 		<hr class="w-full border-neutral-300"/>
 	</div>
-	<script>
-    document.addEventListener("removeEmptyMessage", () => {
-        const emptyMsg = document.getElementById("empty-todo-msg");
-        if (emptyMsg) {
-            emptyMsg.remove();
-        }
-    });
-	</script>
 }
 
 templ TodoList(todos []*schema.Todo) {
@@ -39,15 +29,10 @@ templ TodoList(todos []*schema.Todo) {
 	}
 }
 
-templ EmptyTodoList() {
-	<li id="empty-todo-msg" class="font-mono text-sm text-red-700">
-		no todos found
-	</li>
-}
-
 templ SingleTodo(todo *schema.Todo) {
 	<li
 		id={ "todo-" + fmt.Sprint(todo.ID) }
+		error-id={ templ.JSONString(todo.ID) }
 		class="p-2 font-mono bg-gray-50 rounded-sm border border-neutral-500 shadow-sm"
 	>
 		<div class="flex pb-2">
@@ -73,48 +58,43 @@ templ SingleTodo(todo *schema.Todo) {
 			id={ "todo-item-list-" + fmt.Sprint(todo.ID) }
 			class="flex flex-col gap-2 py-1.5"
 		>
-			@TodoItemList(todo.Items)
+			@TodoItemList(todo)
 		</ul>
 		<hr class="w-full border-neutral-300"/>
 		<div class="flex justify-between items-center pt-2">
-			@CreateTodoItem()
+			@CreateTodoItem(todo)
 			<p class="font-mono text-xs text-neutral-500">{ todo.CreatedAt.Format("01/02/2006") }</p>
 		</div>
 	</li>
 }
 
-templ TodoItemList(items []schema.TodoItem) {
-	if len(items) == 0 {
-		@EmptyTodoItemList()
+templ TodoItemList(todo *schema.Todo) {
+	if len(todo.Items) == 0 {
+		@EmptyTodoItemList(fmt.Sprint(todo.ID))
 	} else {
 		{{
-			sort.Slice(items, func(i, j int) bool {
-				if items[i].CreatedAt.Equal(items[j].CreatedAt) {
-					return items[i].ID < items[j].ID
+			// sort items by created_at
+			sort.Slice(todo.Items, func(i, j int) bool {
+				if todo.Items[i].CreatedAt.Equal(todo.Items[j].CreatedAt) {
+					return todo.Items[i].ID < todo.Items[j].ID
 				}
-				return items[i].CreatedAt.Before(items[j].CreatedAt)
+				return todo.Items[i].CreatedAt.Before(todo.Items[j].CreatedAt)
 			})
 		}}
-		for i, item := range items {
-			@SingleTodoItem(i, item)
+		for _, item := range todo.Items {
+			@SingleTodoItem(item)
 		}
 	}
 }
 
-templ EmptyTodoItemList() {
-	<li id="empty-todo-item-msg" class="font-mono text-xs text-red-700">
-		no items found
-	</li>
-}
-
-templ SingleTodoItem(index int, item schema.TodoItem) {
+templ SingleTodoItem(item schema.TodoItem) {
 	<li
 		id={ "item-" + fmt.Sprint(item.ID) }
-		class="font-mono text-xs"
+		class="w-full h-full font-mono text-xs"
 	>
 		<div class="flex justify-between items-center gap-2">
-			<div class="flex-grow flex justify-start items-center gap-2">
-				<h1 class="text-neutral-500">{ fmt.Sprint(index + 1) + "." }</h1>
+			<div class="flex-grow w-4/5 flex justify-start items-center gap-2 truncate">
+				<h1 class="text-neutral-500">*</h1>
 				<div
 					id={ "item-content-" + fmt.Sprint(item.ID) }
 					hx-get={ "/todos/item/edit/" + fmt.Sprint(item.ID) }
@@ -122,9 +102,13 @@ templ SingleTodoItem(index int, item schema.TodoItem) {
 					hx-target="this"
 					hx-swap="outerHTML"
 					title="click to edit"
-					class="w-full truncate cursor-text"
+					class="w-full cursor-text"
 				>
-					{ item.Content }
+					if item.Content == "" {
+						<span class="text-neutral-500">click to edit</span>
+					} else {
+						{ item.Content }
+					}
 				</div>
 			</div>
 			<input
@@ -136,6 +120,51 @@ templ SingleTodoItem(index int, item schema.TodoItem) {
 				title="click to mark as done"
 				checked?={ item.Checked }
 			/>
+			<button
+				aria-label="Delete Todo item"
+				title="click to remove this todo item"
+				hx-delete={ "/todos/item/" + fmt.Sprint(item.TodoID) + "/" + fmt.Sprint(item.ID) }
+				hx-target={ "#item-" + fmt.Sprint(item.ID) }
+				hx-swap="outerHTML"
+				hx-trigger="click"
+				class="!h-4 !p-0 !rounded-none !w-4 negative zion-button mx-auto"
+			>
+				x
+			</button>
+		</div>
+	</li>
+}
+
+templ SingleEditTodoItem(index int, item schema.TodoItem) {
+	<li
+		id={ "item-" + fmt.Sprint(item.ID) }
+		class="w-full h-full font-mono text-xs"
+	>
+		<div class="flex justify-between items-center gap-2">
+			<div class="flex-grow w-4/5 flex justify-start items-center gap-2 truncate">
+				<h1 class="text-neutral-500">{ fmt.Sprint(index + 1) + "." }</h1>
+				@EditTodoItem(&item)
+			</div>
+			<input
+				type="checkbox"
+				name="checked"
+				class="form-checkbox cursor-pointer"
+				hx-post={ "/todos/item/toggle/" + fmt.Sprint(item.ID) }
+				hx-trigger="click"
+				title="click to mark as done"
+				checked?={ item.Checked }
+			/>
+			<button
+				aria-label="Delete Todo item"
+				title="click to remove this todo item"
+				hx-delete={ "/todos/item/" + fmt.Sprint(item.TodoID) + "/" + fmt.Sprint(item.ID) }
+				hx-target={ "#item-" + fmt.Sprint(item.ID) }
+				hx-swap="outerHTML"
+				hx-trigger="click"
+				class="!h-4 !p-0 !rounded-none !w-4 negative zion-button mx-auto"
+			>
+				x
+			</button>
 		</div>
 	</li>
 }
@@ -149,13 +178,13 @@ templ EditTodoItem(item *schema.TodoItem) {
 		class="form-input w-full p-0.5 px-2 font-mono text-xs rounded-sm border border-neutral-300"
 		autofocus
 		hx-post={ "/todos/item/edit/content/" + fmt.Sprint(item.ID) }
-		hx-trigger="blur, keyup changed delay:1000ms"
+		hx-trigger="blur, keyup[key=='Enter']"
 		hx-target="this"
 		hx-swap="outerHTML"
 	/>
 }
 
-templ ContentItem(item *schema.TodoItem) {
+templ OriginalTodoItem(item *schema.TodoItem) {
 	<div
 		id={ "item-content-" + fmt.Sprint(item.ID) }
 		hx-get={ "/todos/item/edit/" + fmt.Sprint(item.ID) }
@@ -163,14 +192,24 @@ templ ContentItem(item *schema.TodoItem) {
 		hx-target="this"
 		hx-swap="outerHTML"
 		title="click to edit"
-		class="w-full truncate cursor-text"
+		class="w-full cursor-text"
 	>
-		{ item.Content }
+		if item.Content == "" {
+			<span class="text-neutral-500">click to edit</span>
+		} else {
+			{ item.Content }
+		}
 	</div>
 }
 
-templ CreateTodoItem() {
-	<button class="zion-button">new item</button>
+templ CreateTodoItem(todo *schema.Todo) {
+	<button
+		hx-post={ "/todos/item/" + fmt.Sprint(todo.ID) }
+		hx-target={ "#todo-item-list-" + fmt.Sprint(todo.ID) }
+		hx-swap="beforeend"
+		hx-on::after-request={ removeEmptyTodoListMessage(fmt.Sprint(todo.ID)) }
+		class="zion-button"
+	>new item</button>
 }
 
 templ CreateTodoForm() {
@@ -186,6 +225,7 @@ templ CreateTodoForm() {
 				hx-trigger="submit"
 				hx-target="#todo-list"
 				hx-swap="beforeend"
+				hx-on::after-request={ removeEmptyTodoMessage() }
 				class="flex items-center gap-2"
 			>
 				<input
@@ -226,4 +266,38 @@ templ CreateTodoForm() {
 			</button>
 		</div>
 	</div>
+}
+
+// Empty/Error Templates
+templ EmptyTodoList() {
+	<li id="empty-todo-msg" class="font-mono text-sm text-red-700">
+		no todos found
+	</li>
+}
+
+templ EmptyTodoItemList(todoId string) {
+	<li
+		id={ "empty-todo-item-msg-" + todoId }
+		class="font-mono text-xs text-red-700"
+	>
+		no items found
+	</li>
+}
+
+// Scripts
+
+script removeEmptyTodoMessage() {
+	const msgId = "empty-todo-msg";
+	const msg = document.getElementById(msgId);
+	if (msg) {
+		msg.remove();
+	}
+}
+
+script removeEmptyTodoListMessage(id string) {
+	const msgId = "empty-todo-item-msg-" + id;
+	const msg = document.getElementById(msgId);
+	if (msg) {
+		msg.remove();
+	}
 }

@@ -27,8 +27,11 @@ func (h *TodoStorage) CreateTodo(todo schema.Todo) (*schema.Todo, error) {
 	return &todo, nil
 }
 
-func (h *TodoStorage) AddTodoItemToTodo(todoID uint, item *schema.TodoItem) (*schema.TodoItem, error) {
-	return nil, nil
+func (h *TodoStorage) AddTodoItemToTodo(item *schema.TodoItem) (*schema.TodoItem, error) {
+	if err := h.db.Create(&item).Error; err != nil {
+		return nil, err
+	}
+	return item, nil
 }
 
 func (h *TodoStorage) DeleteTodo(todoID string, userID uint) error {
@@ -47,7 +50,11 @@ func (h *TodoStorage) DeleteAllTodos(userID uint) error {
 	return nil
 }
 
-func (h *TodoStorage) DeleteTodoItem(todoID, itemID uint) error {
+func (h *TodoStorage) DeleteTodoItemByID(itemID string) error {
+	err := h.db.Where("id = ?", itemID).Delete(&schema.TodoItem{}).Error
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -105,4 +112,13 @@ func (h *TodoStorage) UpdateTodoItemChecked(itemID string, checked bool) error {
 
 func (h *TodoStorage) ListTodoItems(todoID uint) ([]*schema.TodoItem, error) {
 	return nil, nil
+}
+
+func (h *TodoStorage) GetTodoItemLenthByID(todoID uint) (int, error) {
+	var todo *schema.Todo
+	err := h.db.Preload("Items").Where("id = ?", todoID).First(&todo).Error
+	if err != nil {
+		return 0, err
+	}
+	return len(todo.Items), nil
 }

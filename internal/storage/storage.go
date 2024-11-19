@@ -21,13 +21,14 @@ type SessionStorageInterface interface {
 
 type TodoStorageInterface interface {
 	CreateTodo(todo schema.Todo) (*schema.Todo, error)
-	AddTodoItemToTodo(todoID uint, item *schema.TodoItem) (*schema.TodoItem, error)
+	AddTodoItemToTodo(item *schema.TodoItem) (*schema.TodoItem, error)
 	DeleteTodo(todoID string, userID uint) error
 	DeleteAllTodos(userID uint) error
-	DeleteTodoItem(todoID, itemID uint) error
+	DeleteTodoItemByID(itemID string) error
 	GetTodosByUserID(userID uint) ([]*schema.Todo, error)
 	GetTodoByTodoID(todoID uint) (*schema.Todo, error)
 	GetTodoItemByID(itemID string) (*schema.TodoItem, error)
+	GetTodoItemLenthByID(todoID uint) (int, error)
 	UpdateTodo(todoID uint, title, description string) error
 	UpdateTodoItemContent(itemID string, content string) (*schema.TodoItem, error)
 	UpdateTodoItemChecked(itemID string, checked bool) error
