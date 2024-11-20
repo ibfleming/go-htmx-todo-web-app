@@ -1,4 +1,6 @@
-## TODO CRUD Web Application (Go, HTMX, Templ, TailwindCSS)
+# TODO CRUD Web Application (Go, HTMX, Templ, TailwindCSS)
+
+![Todo app](todo-app.png "View of app")
 
 ### Overview
 
