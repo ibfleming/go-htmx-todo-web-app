@@ -17,7 +17,6 @@ import (
 	"zion/internal/storage"
 	"zion/internal/storage/db"
 
-	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
 )
 
@@ -30,8 +29,9 @@ type ZionServer struct {
 	httpServer    *http.Server
 	hash          *hash.PasswordHash
 	sessionCookie string
-	router        chi.Router
-	wg            sync.WaitGroup
+	//router        chi.Router
+	router *http.ServeMux
+	wg     sync.WaitGroup
 }
 
 func NewZionServer(
@@ -149,13 +149,16 @@ func (s *ZionServer) Start() {
 
 func (s *ZionServer) SetupRouter() {
 	// Using chi router (maybe just use standard library in the future?)
-	s.router = chi.NewRouter()
+	//s.router = chi.NewRouter()
+	s.router = http.NewServeMux()
 
 	// Initialize file server
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("./static")))
-	s.router.Handle("/static/*", fs)
+	//s.router.Handle("/static/*", fs)
+	//s.router.Handle("/favicon.ico", fs)
+	s.router.Handle("/static/", fs)
 	s.router.Handle("/favicon.ico", fs)
 
 	// Define routes
-	s.EstablishRoutes()
+	s.EsatblishRoutesV2()
 }
