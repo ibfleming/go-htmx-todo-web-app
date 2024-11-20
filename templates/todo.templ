@@ -95,21 +95,11 @@ templ SingleTodoItem(item schema.TodoItem) {
 		<div class="flex justify-between items-center gap-2">
 			<div class="flex-grow w-4/5 flex justify-start items-center gap-2 truncate">
 				<h1 class="text-neutral-500">*</h1>
-				<div
-					id={ "item-content-" + fmt.Sprint(item.ID) }
-					hx-get={ "/todos/item/edit/" + fmt.Sprint(item.ID) }
-					hx-trigger="click"
-					hx-target="this"
-					hx-swap="outerHTML"
-					title="click to edit"
-					class="w-full cursor-text"
-				>
-					if item.Content == "" {
-						<span class="text-neutral-500">click to edit</span>
-					} else {
-						{ item.Content }
-					}
-				</div>
+				if item.Checked {
+					@CompletedTodoItem(&item)
+				} else {
+					@NotCompletedTodoItem(&item)
+				}
 			</div>
 			<input
 				type="checkbox"
@@ -117,6 +107,8 @@ templ SingleTodoItem(item schema.TodoItem) {
 				class="form-checkbox cursor-pointer"
 				hx-post={ "/todos/item/toggle/" + fmt.Sprint(item.ID) }
 				hx-trigger="click"
+				hx-target={ "#item-content-" + fmt.Sprint(item.ID) }
+				hx-swap="outerHTML"
 				title="click to mark as done"
 				checked?={ item.Checked }
 			/>
@@ -184,7 +176,7 @@ templ EditTodoItem(item *schema.TodoItem) {
 	/>
 }
 
-templ OriginalTodoItem(item *schema.TodoItem) {
+templ NotCompletedTodoItem(item *schema.TodoItem) {
 	<div
 		id={ "item-content-" + fmt.Sprint(item.ID) }
 		hx-get={ "/todos/item/edit/" + fmt.Sprint(item.ID) }
@@ -195,9 +187,22 @@ templ OriginalTodoItem(item *schema.TodoItem) {
 		class="w-full cursor-text"
 	>
 		if item.Content == "" {
-			<span class="text-neutral-500">click to edit</span>
+			<p class="text-neutral-500">click to edit</p>
 		} else {
-			{ item.Content }
+			<p>{ item.Content }</p>
+		}
+	</div>
+}
+
+templ CompletedTodoItem(item *schema.TodoItem) {
+	<div
+		id={ "item-content-" + fmt.Sprint(item.ID) }
+		class="w-full text-neutral-500"
+	>
+		if item.Content == "" {
+			<p style="text-decoration: line-through;">click to edit</p>
+		} else {
+			<p style="text-decoration: line-through;">{ item.Content }</p>
 		}
 	</div>
 }
@@ -231,7 +236,6 @@ templ CreateTodoForm() {
 				<input
 					type="text"
 					name="title"
-					value="Test Todo"
 					placeholder="title"
 					class="form-input w-full p-0.5 px-2 font-mono text-xs rounded-sm border border-neutral-300"
 					required
@@ -239,7 +243,6 @@ templ CreateTodoForm() {
 				<input
 					type="text"
 					name="description"
-					value="Test description."
 					placeholder="description"
 					class="form-input w-full p-0.5 px-2 font-mono text-xs rounded-sm border border-neutral-300"
 				/>

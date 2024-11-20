@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 	"zion/internal/middleware/auth"
@@ -180,7 +179,7 @@ func (h *TodoHandler) UpdateItemContent(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// 3. Render template
-	err = templates.OriginalTodoItem(item).Render(r.Context(), w)
+	err = templates.NotCompletedTodoItem(item).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "failed to render template", http.StatusInternalServerError)
 		return
@@ -192,22 +191,37 @@ func (h *TodoHandler) ToggleItemCheck(w http.ResponseWriter, r *http.Request) {
 
 	// 1. Get parameters
 	id := chi.URLParam(r, "id")
+	check := r.FormValue("checked")
 	r.ParseForm()
 
-	if r.FormValue("checked") == "on" {
+	// 2. Update todo item checked
+	if check == "on" {
 		checked = true
+		item, err := h.todos.UpdateTodoItemChecked(id, checked)
+		if err != nil {
+			http.Error(w, "failed to update todo item", http.StatusInternalServerError)
+			return
+		}
+		// 3. Render template
+		err = templates.CompletedTodoItem(item).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, "failed to render template", http.StatusInternalServerError)
+			return
+		}
 	} else {
 		checked = false
+		item, err := h.todos.UpdateTodoItemChecked(id, checked)
+		if err != nil {
+			http.Error(w, "failed to update todo item", http.StatusInternalServerError)
+			return
+		}
+		// 3. Render template
+		err = templates.NotCompletedTodoItem(item).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, "failed to render template", http.StatusInternalServerError)
+			return
+		}
 	}
-
-	// 2. Update todo item checked
-	err := h.todos.UpdateTodoItemChecked(id, checked)
-	if err != nil {
-		http.Error(w, "failed to update todo item", http.StatusInternalServerError)
-		return
-	}
-
-	log.Printf("itemID: %s, content: %t", id, checked)
 }
 
 func (h *TodoHandler) AddItem(w http.ResponseWriter, r *http.Request) {

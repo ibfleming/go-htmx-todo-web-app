@@ -97,17 +97,17 @@ func (h *TodoStorage) UpdateTodoItemContent(itemID string, content string) (*sch
 	return item, nil
 }
 
-func (h *TodoStorage) UpdateTodoItemChecked(itemID string, checked bool) error {
+func (h *TodoStorage) UpdateTodoItemChecked(itemID string, checked bool) (*schema.TodoItem, error) {
 	item, err := h.GetTodoItemByID(itemID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	item.Checked = checked
 	err = h.db.Save(&item).Error
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return item, nil
 }
 
 func (h *TodoStorage) ListTodoItems(todoID uint) ([]*schema.TodoItem, error) {

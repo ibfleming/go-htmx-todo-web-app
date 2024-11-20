@@ -31,6 +31,6 @@ type TodoStorageInterface interface {
 	GetTodoItemLenthByID(todoID uint) (int, error)
 	UpdateTodo(todoID uint, title, description string) error
 	UpdateTodoItemContent(itemID string, content string) (*schema.TodoItem, error)
-	UpdateTodoItemChecked(itemID string, checked bool) error
+	UpdateTodoItemChecked(itemID string, checked bool) (*schema.TodoItem, error)
 	ListTodoItems(todoID uint) ([]*schema.TodoItem, error)
 }
