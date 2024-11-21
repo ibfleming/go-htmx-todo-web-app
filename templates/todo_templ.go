@@ -43,7 +43,7 @@ func TodoPage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<hr class=\"w-full border-neutral-300\"><div class=\"px-4 py-4\"><ul id=\"todo-list\" hx-get=\"/todos\" hx-trigger=\"load once\" hx-swap=\"innerHTML\" class=\"auto-rows-[min-content] grid-cols-[repeat(auto-fill,_minmax(320px,_1fr))] w-full h-full grid items-start gap-6\"></ul></div><hr class=\"w-full border-neutral-300\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<hr class=\"w-full border-neutral-300\"><div class=\"px-4 py-4\"><ul id=\"todo-list\" hx-get=\"/todos/\" hx-trigger=\"load once\" hx-swap=\"innerHTML\" class=\"auto-rows-[min-content] grid-cols-[repeat(auto-fill,_minmax(320px,_1fr))] w-full h-full grid items-start gap-6\"></ul></div><hr class=\"w-full border-neutral-300\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -826,7 +826,7 @@ func CreateTodoForm() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/todos\" hx-trigger=\"submit\" hx-target=\"#todo-list\" hx-swap=\"beforeend\" hx-on::after-request=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/todos/\" hx-trigger=\"submit\" hx-target=\"#todo-list\" hx-swap=\"beforeend\" hx-on::after-request=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

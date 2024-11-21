@@ -58,7 +58,7 @@ This project is a fully functional web application built with the **Go** program
 
 ### Future Plans
 
-- Fully migrate from **chi router** to Go’s standard `http` package.
+- ~~Fully migrate from **chi router** to Go’s standard `http` package.~~
 - Refactor and optimize code for better maintainability.
 - Add additional features such as:
   - Password recovery.

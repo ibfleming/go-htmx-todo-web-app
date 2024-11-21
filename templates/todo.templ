@@ -13,7 +13,7 @@ templ TodoPage() {
 		<div class="px-4 py-4">
 			<ul
 				id="todo-list"
-				hx-get="/todos"
+				hx-get="/todos/"
 				hx-trigger="load once"
 				hx-swap="innerHTML"
 				class="auto-rows-[min-content] grid-cols-[repeat(auto-fill,_minmax(320px,_1fr))] w-full h-full grid items-start gap-6"
@@ -226,7 +226,7 @@ templ CreateTodoForm() {
 		<div class="flex-grow max-w-[32rem] min-w-24 flex flex-col gap-1">
 			<label for="create-todo-form" class="font-mono text-sm font-semibold text-neutral-800">create todo</label>
 			<form
-				hx-post="/todos"
+				hx-post="/todos/"
 				hx-trigger="submit"
 				hx-target="#todo-list"
 				hx-swap="beforeend"

@@ -7,8 +7,6 @@ import (
 	"zion/internal/storage"
 	"zion/internal/storage/schema"
 	"zion/templates"
-
-	"github.com/go-chi/chi/v5"
 )
 
 type TodoHandler struct {
@@ -68,10 +66,11 @@ func (h *TodoHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 func (h *TodoHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// 1. Get parameters
+	id := r.PathValue("id")
 	user := auth.GetUser(r.Context())
 
 	// 2. Delete todo
-	err := h.todos.DeleteTodo(chi.URLParam(r, "id"), user.ID)
+	err := h.todos.DeleteTodo(id, user.ID)
 	if err != nil {
 		http.Error(w, "failed to delete todo", http.StatusInternalServerError)
 		return
@@ -151,7 +150,7 @@ func (h *TodoHandler) List(w http.ResponseWriter, r *http.Request) {
 
 func (h *TodoHandler) EditItem(w http.ResponseWriter, r *http.Request) {
 	// 1. Get parameters
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 
 	item, err := h.todos.GetTodoItemByID(id)
 	if err != nil {
@@ -168,7 +167,7 @@ func (h *TodoHandler) EditItem(w http.ResponseWriter, r *http.Request) {
 
 func (h *TodoHandler) UpdateItemContent(w http.ResponseWriter, r *http.Request) {
 	// 1. Get parameters
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 	content := r.FormValue("content")
 
 	// 2. Update todo item content
@@ -190,7 +189,7 @@ func (h *TodoHandler) ToggleItemCheck(w http.ResponseWriter, r *http.Request) {
 	var checked bool
 
 	// 1. Get parameters
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 	check := r.FormValue("checked")
 	r.ParseForm()
 
@@ -226,7 +225,7 @@ func (h *TodoHandler) ToggleItemCheck(w http.ResponseWriter, r *http.Request) {
 
 func (h *TodoHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 	idUint, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)
@@ -252,8 +251,8 @@ func (h *TodoHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TodoHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
-	todoId := chi.URLParam(r, "todoId")
-	itemId := chi.URLParam(r, "itemId")
+	todoId := r.PathValue("todoId")
+	itemId := r.PathValue("itemId")
 
 	err := h.todos.DeleteTodoItemByID(itemId)
 	if err != nil {

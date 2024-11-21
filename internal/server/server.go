@@ -29,9 +29,8 @@ type ZionServer struct {
 	httpServer    *http.Server
 	hash          *hash.PasswordHash
 	sessionCookie string
-	//router        chi.Router
-	router *http.ServeMux
-	wg     sync.WaitGroup
+	router        *http.ServeMux
+	wg            sync.WaitGroup
 }
 
 func NewZionServer(
@@ -51,11 +50,11 @@ func NewZionServer(
 		hash:          hash,
 		sessionCookie: cfg.SessionCookieName,
 		httpServer: &http.Server{
-			Addr:        fmt.Sprintf(":%s", cfg.Port),
-			IdleTimeout: time.Minute,
-			// ReadTimeout:    10 * time.Second,
-			// WriteTimeout:   30 * time.Second,
-			// MaxHeaderBytes: 1 << 20,
+			Addr:           fmt.Sprintf(":%s", cfg.Port),
+			IdleTimeout:    time.Minute,
+			ReadTimeout:    10 * time.Second,
+			WriteTimeout:   30 * time.Second,
+			MaxHeaderBytes: 1 << 20,
 		},
 	}
 	s.SetupRouter()
@@ -148,17 +147,13 @@ func (s *ZionServer) Start() {
 }
 
 func (s *ZionServer) SetupRouter() {
-	// Using chi router (maybe just use standard library in the future?)
-	//s.router = chi.NewRouter()
 	s.router = http.NewServeMux()
 
 	// Initialize file server
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("./static")))
-	//s.router.Handle("/static/*", fs)
-	//s.router.Handle("/favicon.ico", fs)
 	s.router.Handle("/static/", fs)
 	s.router.Handle("/favicon.ico", fs)
 
 	// Define routes
-	s.EsatblishRoutesV2()
+	s.EsatblishRoutes()
 }
